@@ -30,27 +30,43 @@ def show_window_grid():
     my_menu = Menu(window)
     window.config(menu=my_menu)
 
-    # Tabla
-    window.columnconfigure(0, weight=1)
-    window.rowconfigure(0, weight=1)
+    # Grid
+    window.columnconfigure(0, weight=2)
+    window.columnconfigure(1, weight=0)
+    window.rowconfigure(0, weight=0)
     window.rowconfigure(1, weight=4)
-    window.rowconfigure(2, weight=1)
+    window.rowconfigure(2, weight=0)
 
+    # Dispersion de datos
+    dato_frame = Frame(window)
+    dato_frame.grid(row=0, column=0)
+    espaciado_label = Label(dato_frame, text="Introduce intervalo entre datos: ")
+    espaciado_label.grid(column=0, row=0)
+    espaciado = Entry(dato_frame)
+    espaciado.grid(column=1, row=0)
+
+    # Tabla y vertical scrollbar
     tabla = ttk.Treeview(window, columns=('Seconds', 'RPM'))
-    tabla.grid(column=0, row=0, sticky=NS, padx=(0, 20))
-    tabla['show'] = 'headings'
+    tabla['show'] = 'headings'  # para eliminar una columna inicial sin datos (usada para indices/identificadores)
     vsb = ttk.Scrollbar(window, orient="vertical")
-
-    vsb.grid(column=0, row=0, sticky="NSE")
     tabla.configure(yscrollcommand=vsb.set)
     vsb.configure(command=tabla.yview)
-    #tabla.heading(0, text="Data #1")
     tabla.heading(0, text="Seconds")
     tabla.heading(1, text="RPM")
-    #tabla.heading(3, text="Data #4")
+
+    tabla.grid(column=1, row=0, rowspan=3, sticky=NS, padx=(0, 20))  # ,
+    vsb.grid(column=1, row=0, rowspan=3, sticky="NSE")
 
     # Gráfica
     figure = Figure(figsize=(5, 4), dpi=100)
+    canvas = FigureCanvasTkAgg(figure, master=window)
+
+    # Navegación grafica
+    toolbarFrame = Frame(master=window)
+    toolbarFrame.grid(column=0, row=2, sticky=EW)
+    navigation_toolbar = NavigationToolbar(canvas, toolbarFrame)
+
+    previous_subplot = None
 
     # Metodos botones menu
     def import_data():
@@ -60,37 +76,56 @@ def show_window_grid():
 
     def view_data():
         if len(my_data) > 0:
+            # Borrando y añadiendo nuevos datos a tabla
             tabla.delete(*tabla.get_children())
             x = []
             y = []
 
-            # for i in range(100):
-            for i in range(len(my_data)):
+            respuesta = espaciado.get()
+            intervalo = 1
+            if len(respuesta) > 0 and respuesta.isnumeric():
+                intervalo = int(respuesta)
+
+            for i in range(0, len(my_data), intervalo):
                 tabla.insert('', 'end', values=(my_data[i][1], my_data[i][2]))
-                # if (i % 20) == 0:
                 x.append(my_data[i][1])
                 y.append(my_data[i][2])
 
-            # TODO se duplica el subplot, ver como actualizar, o borrar anterior y poner uno nuevo
-            figure.add_subplot(111).plot(x, y)
-            chart = FigureCanvasTkAgg(figure, master=window)
-            chart.draw()
-            chart.get_tk_widget().grid(column=0, row=1, sticky=NSEW)
+            # Dibujando plot
+            nonlocal previous_subplot
+            if previous_subplot is not None:
+                previous_subplot.clear()
+            #else:
+             #   canvas.draw()
+              #  canvas.get_tk_widget().grid(column=0, row=1, sticky=NSEW)
+            # previous_subplot = figure.add_subplot().plot(x, y)
+            # TODO x and y axis get bugged uppon displaying it several times
+            chart = figure.add_subplot()
+            chart.set_ylabel("RPM")
+            chart.set_xlabel("Seconds")
+            previous_subplot = chart.plot(x, y)
+            canvas.draw()
+            canvas.get_tk_widget().grid(column=0, row=1, sticky=NSEW)
 
-            #Navegación grafica
-            toolbarFrame = Frame(master=window)
-            toolbarFrame.grid(column=0, row=2, sticky=EW)
-            navigation_toolbar = NavigationToolbar(chart, toolbarFrame)
+            # plt.grid()
+            # axes = plt.axes()
+            # axes.set_xlim([0, 10])
+            # axes.set_ylim([0, 10])
 
-            plt.grid()
-            axes = plt.axes()
-            axes.set_xlim([0, 10])
-            axes.set_ylim([0, 10])
+    def export_data():
+        if len(my_data) > 0:
+            filename = fd.asksaveasfile(mode="w", defaultextension=".csv")
+            sep = ";"  # delimitador CSV
+            intervalo = int(espaciado.get()) if espaciado.get().isnumeric() else 1
+            for i in range(0, len(my_data), intervalo):
+                filename.write(
+                    f"{my_data[i][0]}{sep}{my_data[i][1]}{sep}{my_data[i][2]}{sep}{my_data[i][3]}\n")
+            filename.close()
 
     # Acciones botones menu
     my_menu.add_command(label="Import", command=import_data)
     my_menu.add_command(label="View", command=view_data)
-    my_menu.add_command(label="Export")
+    my_menu.add_command(label="Export", command=export_data)
 
     # Ejecuta la ventana
     window.mainloop()
