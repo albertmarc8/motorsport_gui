@@ -54,8 +54,8 @@ def show_window_grid():
     tabla.heading(0, text="Seconds")
     tabla.heading(1, text="RPM")
 
-    tabla.grid(column=1, row=0, rowspan=3, sticky=NS, padx=(0, 20))  # ,
-    vsb.grid(column=1, row=0, rowspan=3, sticky="NSE")
+    tabla.grid(column=0, row=1, rowspan=3, sticky=NS, padx=(0, 20))  # ,
+    vsb.grid(column=0, row=1, rowspan=3, sticky="NSE")
 
     # Gráfica
     figure = Figure(figsize=(5, 4), dpi=100)
@@ -80,7 +80,6 @@ def show_window_grid():
             tabla.delete(*tabla.get_children())
             x = []
             y = []
-
             respuesta = espaciado.get()
             intervalo = 1
             if len(respuesta) > 0 and respuesta.isnumeric():
@@ -105,12 +104,7 @@ def show_window_grid():
             chart.set_xlabel("Seconds")
             previous_subplot = chart.plot(x, y)
             canvas.draw()
-            canvas.get_tk_widget().grid(column=0, row=1, sticky=NSEW)
-
-            # plt.grid()
-            # axes = plt.axes()
-            # axes.set_xlim([0, 10])
-            # axes.set_ylim([0, 10])
+            canvas.get_tk_widget().grid(column=0, row=1, rowspan=2, sticky=NSEW)
 
     def export_data():
         if len(my_data) > 0:
