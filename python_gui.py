@@ -54,8 +54,8 @@ def show_window_grid():
     tabla.heading(0, text="Seconds")
     tabla.heading(1, text="RPM")
 
-    tabla.grid(column=0, row=1, rowspan=3, sticky=NS, padx=(0, 20))  # ,
-    vsb.grid(column=0, row=1, rowspan=3, sticky="NSE")
+    tabla.grid(column=1, row=0, rowspan=3, sticky=NS, padx=(0, 20))  # ,
+    vsb.grid(column=1, row=0, rowspan=3, sticky="NSE")
 
     # Gráfica
     figure = Figure(figsize=(5, 4), dpi=100)
