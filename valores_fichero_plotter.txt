@@ -12,28 +12,28 @@ https://github.com/MotorsportUJI/DAteensy/blob/master/src/lib/CAN/OBD2.cpp
 
 Descripción campos:
 
-    2393 -> El método millis(), devuelve el número de milisegundos desde que el programa se ha iniciado
-    OFF -> (MIL = Malfunction Indicator Light)
-    0 -> Número de DTCs activos. (DTC = Diagnostic Trouble Codes)
-    0 -> "fuel_system_status", Estado del sistema de combustible
-    0.00 -> Dato calculado: Engine load
-    -40.00 -> "Coolant temp", Temperatura del refrigerante
-    -40.00 -> "Air temp", Temperatura del aire de entrada
-    -100.00 -> "Long term fuel trim" ~ ¿Ajuste de combustible a largo plazo?
-    0 -> "Intake manifold absolute pressure"
-    0 -> "Absolute barometric presure"
-    0.00 -> "rpm"
-    0 -> "vehicle speed (OBD2)""
-    -64.00 -> "Timing advance"
-    0.00 -> "Throttle position"
-    0.00 -> "Relative throttle position"
-    0.00 -> "Oxygen sensor voltage"
-    -100.00 -> "Oxygen sensor long term fuel trim"
-    0.00 -> "Control module voltage"
-    0 -> "Distance Traveled MIL"
-    0 -> "//"
+    #0 - 2393 -> El método millis(), devuelve el número de milisegundos desde que el programa se ha iniciado
+    #1 - OFF -> (MIL = Malfunction Indicator Light)
+    #2 - 0 -> Número de DTCs activos. (DTC = Diagnostic Trouble Codes)
+    #3 - 0 -> "fuel_system_status", Estado del sistema de combustible
+    #4 - 0.00 -> Dato calculado: Engine load
+    #5 - -40.00 -> "Coolant temp", Temperatura del refrigerante
+    #6 - -40.00 -> "Air temp", Temperatura del aire de entrada
+    #7 - -100.00 -> "Long term fuel trim" ~ ¿Ajuste de combustible a largo plazo?
+    #8 - 0 -> "Intake manifold absolute pressure"
+    #9 - 0 -> "Absolute barometric presure"
+    #10 - 0.00 -> "rpm"
+    #11 - 0 -> "vehicle speed (OBD2)""
+    #12 - -64.00 -> "Timing advance"
+    #13 - 0.00 -> "Throttle position"
+    #14 - 0.00 -> "Relative throttle position"
+    #15 - 0.00 -> "Oxygen sensor voltage"
+    #16 - -100.00 -> "Oxygen sensor long term fuel trim"
+    #17 - 0.00 -> "Control module voltage"
+    #18 - 0 -> "Distance Traveled MIL"
+    #19 - 0 -> "//"
 
 En otros ficheros hay 2 campos más:
 
-    0 -> String(GEAR::getGear())
-    0 -> String(digitalRead(OIL_PRESSURE_PIN))
+    #20 - 0 -> String(GEAR::getGear())
+    #21 - 0 -> String(digitalRead(OIL_PRESSURE_PIN))
