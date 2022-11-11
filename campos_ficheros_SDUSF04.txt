@@ -23,7 +23,7 @@ Descripción campos:
     #8 - 0 -> "Intake manifold absolute pressure"
     #9 - 0 -> "Absolute barometric presure"
     #10 - 0.00 -> "rpm"
-    #11 - 0 -> "vehicle speed (OBD2)""
+    #11 - 0 -> "vehicle speed (OBD2)"
     #12 - -64.00 -> "Timing advance"
     #13 - 0.00 -> "Throttle position"
     #14 - 0.00 -> "Relative throttle position"
