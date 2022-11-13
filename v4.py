@@ -44,7 +44,7 @@ class V3:
 		self.plot_on_start()
 
 	def plot_on_start(self):
-		self.filename="coche_reduced.txt"
+		self.filename= "datos_task/coche_reduced.txt"
 		# 1. Read the file:
 		with open(self.filename, "r") as f:
 
@@ -150,6 +150,6 @@ class V3:
 
 
 root = Tk()
-root.attributes('-fullscreen', True)
+root.attributes('-fullscreen', False)
 program = V3(root)
 program.root.mainloop()
