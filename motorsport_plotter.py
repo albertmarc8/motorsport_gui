@@ -27,10 +27,10 @@ class MotorsportPlotter:
         my_menu = Menu(self.root)
         self.root.config(menu=my_menu)
         my_menu.add_command(label="Import", command=lambda: import_data(self.data))
-        my_menu.add_command(label="View", command=self.view_plot)  # TODO add command=method to parameters
-        my_menu.add_command(label="Export", command=lambda: export_data(self.data))  # TODO add command=method to parameters
+        my_menu.add_command(label="View", command=self.view_plot)
+        my_menu.add_command(label="Export", command=lambda: export_data(self.data))
         my_menu.add_command(label="Single/Multiple graphs", command=self.change_view)
-        tables_menu = Menu(my_menu)
+        tables_menu = Menu(my_menu, tearoff=False)
         my_menu.add_cascade(menu=tables_menu,
                             label="View tables")  # TODO fix a line that appears and duplicates the dropdown
         tables_menu.add_command(label="View airflow")  # TODO add command=method to parameters
@@ -74,7 +74,6 @@ class MotorsportPlotter:
 
         self.toolbar = None
         # self.plot_on_start()
-
 
     def view_multi_plot(self):
         # TODO some error appears uppon using this method
@@ -201,12 +200,16 @@ class MotorsportPlotter:
         """
         Plot view switcher using a boolean to check which one is active.
         """
-        if self.single_plot:
-            self.view_multi_plot()
-            self.single_plot = False
-        else:
-            self.view_single_plot()
-            self.single_plot = True
+        # TODO plots need to be removed or hidden before display one or another, currently they are getting overlapped
+        #  and it is visible
+        if len(self.data) > 0:
+            if self.single_plot:
+                self.single_plot = False
+                self.view_multi_plot()
+
+            else:
+                self.single_plot = True
+                self.view_single_plot()
 
     def view_plot(self):
         """
