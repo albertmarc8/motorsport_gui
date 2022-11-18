@@ -6,7 +6,7 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolb
 import matplotlib.backends.backend_tkagg as tkagg
 
 
-class V3:
+class V4:
 	def __init__(self, root):
 		self.root = root
 		self.root.title("UJI Formula Student")
@@ -41,17 +41,31 @@ class V3:
 		table_label_frame.place(x=40, y=720, width=1200, height=330)
 
 		self.toolbar = None
+		self.axs = None
 		self.plot_on_start()
 
 	def plot_on_start(self):
-		self.filename= "datos_task/coche_reduced.txt"
+		"""self.filename="coche_reduced.txt"
 		# 1. Read the file:
 		with open(self.filename, "r") as f:
 
 			# 2. Iterate and get values from all lines
 			self.data = [(int(seconds), int(rpms)) for seconds, rpms in [line[7:-8].split(", ") for line in f.readlines()]]
 		self.plot_data()
-		
+		"""
+		print("indri")
+
+		self.filename="6508.txt"
+
+
+		# 1. Read the file:
+		with open(self.filename, "r") as f:
+			lines = [line.split(",") for line in f.readlines()]
+
+		# 2. Iterate and get values from all lines
+		self.data = [[int(line[0]), float(line[13])] for line in lines]
+		#self.data = [(int(seconds), int(rpms)) for seconds, rpms in zip(lines[0],lines[12])]
+		self.plot_data()
 
 	def import_from_txt(self):
 		"""
@@ -60,15 +74,18 @@ class V3:
 		stores a resulting matix with shape (n, 2) being n the number
 		of non-empty lines in the file
 		"""
+		print("indri")
 
 		self.filename = filedialog.askopenfilename(filetypes=(('text files', '*.txt'),))
 
 
 		# 1. Read the file:
 		with open(self.filename, "r") as f:
+			lines = [line.split(",") for line in f.readlines()]
 
-			# 2. Iterate and get values from all lines
-			self.data = [(int(seconds), int(rpms)) for seconds, rpms in [line[7:-8].split(", ") for line in f.readlines()]]
+		# 2. Iterate and get values from all lines
+		#self.data = [line[0], line[13] for line in lines]
+		#self.data = [(int(seconds), int(rpms)) for seconds, rpms in zip(lines[0],lines[12])]
 
 
 	def export_to_csv(self):
@@ -119,10 +136,16 @@ class V3:
 		fig.add_subplot(111).plot(seconds, rpms)
 		fig.add_subplot(121).plot(seconds, rpms)
 		fig.add_subplot(131).plot(seconds, rpms)"""
-		fig, axs = plt.subplots(2, 2, figsize=(5,4))
-		for ax in axs.flat:
+
+		if self.axs is not None:
+			#for ax in self.axs.flat:
+			plt.close()
+
+		fig, self.axs = plt.subplots(2, 2, figsize=(5,4))
+		for ax in self.axs.flat:
 			ax.set_title("Data plot")
 			ax.plot(seconds, rpms)
+		plt.close()
 
 		frame = Frame(root)
 		frame.place(x=0, y=0, width=1920, height=720)
@@ -133,10 +156,13 @@ class V3:
 		#canvas.get_tk_widget().place(x=0, y=0)
 		#canvas._tkcanvas.place(x=0, y=0)
 		
-		if self.toolbar is None:
-			self.toolbar = NavigationToolbar2Tk(canvas, frame)
-			self.toolbar.update()
-			self.toolbar.pack()
+		if self.toolbar is not None:
+			self.toolbar.destroy()
+
+		self.toolbar = NavigationToolbar2Tk(canvas, frame)
+		self.toolbar.update()
+		self.toolbar.pack()
+
 		"""
 		figure = plt.figure(figsize=(20,7), dpi=100)
 		figure.add_subplot(111).plot(seconds, rpms)
@@ -150,6 +176,6 @@ class V3:
 
 
 root = Tk()
-root.attributes('-fullscreen', False)
-program = V3(root)
+root.attributes('-fullscreen', True)
+program = V4(root)
 program.root.mainloop()
