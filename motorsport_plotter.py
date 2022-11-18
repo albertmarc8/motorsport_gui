@@ -1,6 +1,8 @@
 import matplotlib.pyplot as plt
 from tkinter import *
 from tkinter.ttk import Treeview
+
+import numpy as np
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2Tk
 from matplotlib.figure import Figure
 from utils.IO import *
@@ -9,16 +11,18 @@ from utils.IO import *
 class MotorsportPlotter:
     # Styling parameters
     pad_containers = 5
-    single_plot = False
+    single_plot = True
 
     def __init__(self, r):
+        self.canvas = None
         self.figure = None
         self.chart = None
-        self.previous_subplot_2 = None
-        self.previous_subplot = None
+        self.previous_subplots = []
         self.filename = None
         self.table = None
         self.data = []
+        self.selected_x = 0
+        self.selected_ys = []
         self.root = r
         self.root.title("UJI Motorsport Plotter")
         self.root.geometry('1600x900')
@@ -27,18 +31,25 @@ class MotorsportPlotter:
         my_menu = Menu(self.root)
         self.root.config(menu=my_menu)
         my_menu.add_command(label="Import", command=lambda: import_data(self.data))
-        my_menu.add_command(label="View", command=self.view_plot)
+        my_menu.add_command(label="View", command=lambda: self.view_change_xy(0, [n for n in range(1, 22, 1)])) # TODO Albert: commented because it dooesn't make as much sense to use this now
         my_menu.add_command(label="Export", command=lambda: export_data(self.data))
         my_menu.add_command(label="Single/Multiple graphs", command=self.change_view)
+
+        # View tables dropdown
         tables_menu = Menu(my_menu, tearoff=False)
         my_menu.add_cascade(menu=tables_menu,
-                            label="View tables")  # TODO fix a line that appears and duplicates the dropdown
-        tables_menu.add_command(label="View airflow")  # TODO add command=method to parameters
-        tables_menu.add_command(label="View engine block temperature")  # TODO add command=method to parameters
-        tables_menu.add_command(label="View oil pressure")  # TODO add command=method to parameters
-        tables_menu.add_command(label="View oil temperature")  # TODO add command=method to parameters
-        tables_menu.add_command(label="View water temperature IN")  # TODO add command=method to parameters
-        tables_menu.add_command(label="View water temperature OUT")  # TODO add command=method to parameters
+                            label="View tables")
+        tables_menu.add_command(label="** View airflow")  # TODO add command=method to parameters
+        tables_menu.add_command(label="View air temperature", command=lambda: self.view_change_xy(0, [6]))
+        tables_menu.add_command(label="** View engine block temperature")  # TODO add command=method to parameters
+        tables_menu.add_command(label="View gear", command=lambda: self.view_change_xy(0, [20]))
+        tables_menu.add_command(label="View oil pressure", command=lambda: self.view_change_xy(0, [21]))
+        tables_menu.add_command(label="** View oil temperature")  # TODO add command=method to parameters
+        tables_menu.add_command(label="View throttle position and relative throttle position", command=lambda: self.view_change_xy(0, [13, 14]))
+        tables_menu.add_command(label="View RPM", command=lambda: self.view_change_xy(0, [10]))
+        tables_menu.add_command(label="View water temperature", command=lambda: self.view_change_xy(0, [5]))
+        tables_menu.add_command(label="** View water temperature IN")  # TODO add command=method to parameters
+        tables_menu.add_command(label="** View water temperature OUT")  # TODO add command=method to parameters
 
         # Grid system declaration
         self.root.columnconfigure(0, weight=3)
@@ -150,26 +161,25 @@ class MotorsportPlotter:
         if len(self.data) > 0:
             # Borrando y añadiendo nuevos datos a tabla
             self.table.delete(*self.table.get_children())
-            x = []
-            y = []
-            z = []
+
+            values_x = []
+            values_y = [[] for _ in range(len(self.selected_ys))]
+
             # respuesta = espaciado_entry.get()
             intervalo = 1
             # if len(respuesta) > 0 and respuesta.isnumeric():
             #    intervalo = int(respuesta)
 
             for i in range(0, len(self.data), intervalo):
-                self.table.insert('', 'end', values=(self.data[i][0], self.data[i][13], self.data[i][14]))
-                x.append(self.data[i][0])
-                y.append(self.data[i][13])
-                z.append(self.data[i][14])
+                values = [self.data[i][k] for k in self.selected_ys]
+                self.table.insert('', 'end', values=values)
+                values_x.append(self.data[i][self.selected_x])
+                for j, y_i in enumerate(self.selected_ys):
+                    values_y[j].append(self.data[i][y_i])
 
             # Dibujando plot
-            if self.previous_subplot is not None:
-                self.previous_subplot = None
-
-            if self.previous_subplot_2 is not None:
-                self.previous_subplot_2 = None
+            if len(self.previous_subplots) > 0:
+                self.previous_subplots = []
 
             if self.chart is not None:
                 self.chart = None
@@ -183,7 +193,10 @@ class MotorsportPlotter:
 
             chart = self.figure.add_subplot()
             chart.set_ylabel("Throttle Positions")
-            chart.set_xlabel("Seconds")
+            chart.set_xlabel("Miliseconds")
+            for i in range(len(self.selected_ys)):
+                chart.plot(values_x, values_y[i])
+                chart.legend(["Indice"])
             canvas = FigureCanvasTkAgg(self.figure, master=self.root)
             canvas.get_tk_widget().grid(column=0, row=0, columnspan=2, sticky=NSEW, pady=(0, 50))
 
@@ -192,9 +205,11 @@ class MotorsportPlotter:
             toolbar_grafica.grid(column=0, row=0, columnspan=2, sticky="ews")
             navigation_toolbar = NavigationToolbar2Tk(canvas, toolbar_grafica)
 
-            self.previous_subplot = chart.plot(x, y)
-            self.previous_subplot_2 = chart.plot(x, z)
+            for i in range(len(self.selected_ys)):
+                self.previous_subplots.append(chart.plot(values_x, values_y[i]))
+
             canvas.draw()
+
 
     def change_view(self):
         """
@@ -210,6 +225,11 @@ class MotorsportPlotter:
             else:
                 self.single_plot = True
                 self.view_single_plot()
+
+    def view_change_xy(self, x, y):
+        self.selected_x = x
+        self.selected_ys = y
+        self.view_plot()
 
     def view_plot(self):
         """
