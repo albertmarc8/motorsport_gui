@@ -1,5 +1,15 @@
 from tkinter import filedialog
 
+from utils.arduinoreceiver import ArduinoReceiver
+
+arduino = ArduinoReceiver()
+connected_to_arduino = False
+
+
+def connect_realtime_data():
+    arduino.find_port()
+    arduino.connect_to_arduino()
+
 
 def export_data(data):
     """
@@ -43,46 +53,25 @@ def export_to_csv(self):
         [f.write(line) for line in [",".join([str(d[0]), str(d[1])]) + "\n" for d in self.data]]
 
 
-def import_data(data):
-    def read_data(file):
+def import_data(data, table):
+    # TODO added table to method parameters but it is a bit slower for some reason
+    def read_data(file, table):
         """
             Opens a dialog and asks the user to select a file from which It can read the data from.
 
         :param file: Reads the specified file line by line.
         :return: Returns a 2d array with int/float/string variables from the file.
         """
-
-        def line_convert(info):
-            """
-                Converts a line from the files to an array with correct data types.
-
-            :param info: The line that will be converted into an array.
-            :return: The properly formatted array containing ints, floats and strings.
-            """
-            variables = info.rstrip().split(",")
-
-            # Conversion: strings -> int
-            for num_i in {0, 2, 3, 8, 9, 11, 18, 19}:
-                variables[num_i] = int(variables[num_i])
-
-            # Conversion: strings -> float
-            for num_f in {4, 5, 6, 7, 10, 12, 13, 14, 15, 16, 17}:
-                variables[num_f] = float(variables[num_f])
-
-            # Taking into consideration the 2 kind of files, one with 20 fields and another with 22 (starting to count from 0)
-            if len(variables) == 21:
-                for num_i in {20, 21}:
-                    variables[num_i] = int(variables[num_i])
-            return variables
-
         # data = []
         for line in open(file).readlines():
-            data.append(line_convert(line))
+            converted_line = line_convert(line)
+            data.append(converted_line)
+            table.insert('', 'end', values=converted_line)
 
         return data
 
     filename = filedialog.askopenfilename(defaultextension="txt")
-    return read_data(filename)
+    return read_data(filename, table)
 
 
 def import_from_txt(self):
@@ -101,6 +90,46 @@ def import_from_txt(self):
         # 2. Iterate and get values from all lines
         self.data = [(int(seconds), int(rpms)) for seconds, rpms in
                      [line[7:-8].split(", ") for line in f.readlines()]]
+
+
+def import_live_data():
+    global connected_to_arduino
+
+    if not connected_to_arduino:
+        connect_realtime_data()
+        connected_to_arduino = True
+    return line_convert(read_realtime_line())
+
+def line_convert(info):
+    """
+        Converts a line from the files to an array with correct data types.
+
+    :param info: The line that will be converted into an array.
+    :return: The properly formatted array containing ints, floats and strings.
+    """
+    variables = info.rstrip().split(",")
+
+    # Conversion: strings -> int
+    for num_i in {0, 2, 3, 8, 9, 11, 18, 19}:
+        variables[num_i] = int(variables[num_i])
+
+    # Conversion: strings -> float
+    for num_f in {4, 5, 6, 7, 10, 12, 13, 14, 15, 16, 17}:
+        variables[num_f] = float(variables[num_f])
+
+    # Taking into consideration the 2 kind of files, one with 20 fields and another with 22 (starting to count from 0)
+    if len(variables) == 22:
+        for num_i in {20, 21}:
+            variables[num_i] = int(variables[num_i])
+    return variables
+
+
+def read_realtime_line():
+    """
+        The method will return a line received from the Serial port. The method connect_realtime_data() must be used
+        before invoking this method.
+    """
+    return arduino.read_from_arduino()
 
 
 def plot_on_start(self):
