@@ -1,5 +1,4 @@
-import logging
-from random import randint
+from random import randint, random
 
 import matplotlib.pyplot as plt
 from tkinter import *
@@ -11,6 +10,13 @@ from matplotlib.figure import Figure
 from utils.IO import *
 from utils.field_names_constants import Fields
 
+hist_data = []
+shown_data = []
+cond = True
+counter = 0
+counter_tot = 0
+x_axis_data = []
+
 
 class MotorsportPlotter:
     # Styling parameters
@@ -18,12 +24,15 @@ class MotorsportPlotter:
     single_plot = True
     live_data_enabled = False
 
-    def __init__(self, r):
+    def __init__(self):
         # GUI
+        self.label_arduino = None
+        self.control_container = None
+        self.axs = None
         self.toolbarFrame = None
         self.chart_label_frame = None
         self.table_label_frame = None
-        self.root = r
+        self.root = Tk()
         self.my_menu = None
         self.table = None
         self.table_vsb = None  # VSB = Vertical Scroll Bar
@@ -37,12 +46,14 @@ class MotorsportPlotter:
         # Data
         self.filename = None
         self.previous_subplots = []
-        self.data = []
-        self.selected_x = 0
-        self.selected_ys = []
+        self.data = []  # String/int/floats from the file
+        self.selected_x = [0]
+        self.selected_ys = [10]
         self.values_x = None
         self.values_y = []
 
+        self.canvas_counter = 0
+        self.live_counter = 0
         self.init_common_GUI()
 
     def init_common_GUI(self):
@@ -61,9 +72,9 @@ class MotorsportPlotter:
         self.root.config(menu=self.my_menu)
         self.my_menu.add_command(label="Import", command=lambda: import_data(self.data, self.table))
         self.my_menu.add_command(label="Export", command=lambda: export_data(self.data))
-        steps = 100  # TODO this value could be asked for instead of this
-        self.my_menu.add_command(label="Enable realtime", command=self.plot_live_data)
-        self.my_menu.add_command(label="Single/Multiple graphs", command=self.change_view)
+        self.my_menu.add_command(label="Enable/Disable realtime", command=self.enable_live_data)
+        self.my_menu.add_command(label="Plot realtime", command=self.plot_live_data)
+        # self.my_menu.add_command(label="Single/Multiple graphs", command=self.change_view)
 
         # View tables dropdown
         tables_menu = Menu(self.my_menu, tearoff=False)
@@ -81,14 +92,21 @@ class MotorsportPlotter:
         tables_menu.add_command(label="** View water temperature IN")  # TODO add command=method to parameters
         tables_menu.add_command(label="** View water temperature OUT")  # TODO add command=method to parameters
 
-        # Tabla
-        # self.chart_label_frame.destroy()
-        # self.table_label_frame.destroy()
+        self.figure = Figure()
+
+        self.canvas = FigureCanvasTkAgg(self.figure, master=self.root)
+        self.canvas.get_tk_widget().grid(column=0, row=0, columnspan=2, sticky=NSEW, pady=(0, 50))
+        self.canvas.draw()
+
+        # Plot navigation
+        self.toolbarFrame = Frame(master=self.root)
+        self.toolbarFrame.grid(column=0, row=0, columnspan=2, sticky="ews")
+        self.toolbar = NavigationToolbar2Tk(self.canvas, self.toolbarFrame)
+
+        # Table
         self.table = Treeview(self.root, columns=([Fields[n] for n in range(len(Fields))]))
-        self.table['show'] = 'headings'  # elimina columna inicial sin datos (usada para indices/ids)
+        self.table['show'] = 'headings'  # deletes the initial column without data (that is used for indexes/ids)
         self.table['displaycolumns'] = ()
-
-
         self.table_vsb = Scrollbar(self.root, orient="vertical")
         self.table.configure(yscrollcommand=self.table_vsb.set)
         self.table_vsb.configure(command=self.table.yview)
@@ -99,15 +117,17 @@ class MotorsportPlotter:
 
         # Placeholders
         self.control_container = LabelFrame(self.root, text="controls", padx=60, pady=30)
-        # control_container.grid(column=1, row=1, sticky=NSEW, padx=self.pad_cont, pady=self.pad_cont)
-        #
-        # self.chart_label_frame = LabelFrame(self.root, text="chart")  # , padx=750, pady=300)
-        # Label(self.chart_label_frame, text="TELEMETRY CHART", font=("Arial", 25)).place(relx=.5, rely=.5, anchor=CENTER)
-        # self.chart_label_frame.grid(column=0, row=0, columnspan=2, sticky=NSEW, padx=self.pad_cont, pady=self.pad_cont)
-        #
-        # self.table_label_frame = LabelFrame(self.root, text="table")
-        # Label(self.table_label_frame, text="TELEMETRY TABLE", font=("Arial", 25)).place(relx=.5, rely=.5, anchor=CENTER)
-        # self.table_label_frame.grid(column=0, row=1, sticky=NSEW, padx=self.pad_cont, pady=self.pad_cont)
+        self.control_container.columnconfigure(0, weight=1)
+        self.control_container.columnconfigure(1, weight=1)
+        self.control_container.rowconfigure(0, weight=1)
+        self.control_container.rowconfigure(1, weight=1)
+        self.control_container.rowconfigure(2, weight=1)
+        self.control_container.rowconfigure(3, weight=1)
+        self.control_container.grid(column=1, row=1, sticky="NSEW")
+
+        self.label_arduino = Label(self.control_container, text="Arduino status: Not connected")
+        self.label_arduino.grid(column=0, row=0)
+
         self.view_plot()
 
     def view_multi_plot(self):
@@ -120,38 +140,30 @@ class MotorsportPlotter:
         rpms = [vars[10] for vars in self.data]
 
         # Represent the table
-        self.table = Treeview(self.root)
-        self.table["columns"] = ("Second", "RPMs")
-
-        self.table.heading("#0", text="", anchor=W)
-        self.table.heading("Second", text="Second", anchor=W)
-        self.table.heading("RPMs", text="RPMs", anchor=W)
-
-        [self.table.insert(parent="", index="end", iid=i, text="", values=d) for i, d in enumerate(self.data)]
-
-        # self.table.place(x=0, y=720, height=380, width=1280)
-        self.table.grid(column=0, row=1, sticky=NSEW, padx=self.pad_cont, pady=self.pad_cont)
-        self.root.update()
+        # self.table = Treeview(self.root)
+        # self.table["columns"] = ("Second", "RPMs")
+        #
+        # self.table.heading("#0", text="", anchor=W)
+        # self.table.heading("Second", text="Second", anchor=W)
+        # self.table.heading("RPMs", text="RPMs", anchor=W)
+        #
+        # [self.table.insert(parent="", index="end", iid=i, text="", values=d) for i, d in enumerate(self.data)]
+        #
+        # # self.table.place(x=0, y=720, height=380, width=1280)
+        # self.table.grid(column=0, row=1, sticky=NSEW, padx=self.pad_cont, pady=self.pad_cont)
+        # self.root.update()
 
         # Represent the plot
         """fig = plt.figure(figsize=(5,4), dpi=100)
         fig.add_subplot(111).plot(seconds, rpms)
         fig.add_subplot(121).plot(seconds, rpms)
         fig.add_subplot(131).plot(seconds, rpms)"""
-        fig, axs = plt.subplots(2, 2, figsize=(5, 4))
-        for ax in axs.flat:
+        self.figure, self.axs = plt.subplots(2, 2, figsize=(5, 4))
+        for ax in self.axs.flat:
             ax.set_title("Data plot")
             ax.plot(seconds, rpms)
 
-        # frame = Frame(self.root)
-        # frame.grid(column=0, row=0, columnspan=2, sticky=NSEW, padx=self.pad_containers, pady=self.pad_containers)
 
-        canvas = FigureCanvasTkAgg(fig, master=self.root)
-        canvas.get_tk_widget().grid(column=0, row=0, columnspan=2, sticky=NSEW)
-
-        if self.toolbar is None:
-            self.toolbar = NavigationToolbar2Tk(canvas, self.root)
-            self.toolbar.grid(column=0, row=0, columnspan=2, sticky="ews")
         """
         figure = plt.figure(figsize=(20,7), dpi=100)
         figure.add_subplot(111).plot(seconds, rpms)
@@ -167,28 +179,20 @@ class MotorsportPlotter:
         :return: Method does not return anything.
         """
         print("view_single_plot()")
-        #if len(self.data) > 0:
+        # if len(self.data) > 0:
         # if self.figure is not None:
         #     self.figure = None
         # if self.canvas is not None:
         #     self.canvas = None
 
         # Dibujando plot
-        self.figure = Figure()
+
         self.ax = self.figure.add_subplot(111)
         self.ax.set_title("Realtime Data")
         self.ax.set_ylabel("Y")
         self.ax.set_xlabel("Miliseconds")
         self.lines = self.ax.plot([], [])[0]
 
-        self.canvas = FigureCanvasTkAgg(self.figure, master=self.root)
-        self.canvas.get_tk_widget().grid(column=0, row=0, columnspan=2, sticky=NSEW, pady=(0, 50))
-        self.canvas.draw()
-
-        # Navegación grafica
-        self.toolbarFrame = Frame(master=self.root)
-        self.toolbarFrame.grid(column=0, row=0, columnspan=2, sticky="ews")
-        self.toolbar = NavigationToolbar2Tk(self.canvas, self.toolbarFrame)
 
 
     def change_view(self):
@@ -214,31 +218,56 @@ class MotorsportPlotter:
         self.lines.set_xdata(self.values_x)
         self.lines.set_ydata(self.values_y[0])
         self.ax.set_xlim(0, max(self.values_x))
-        self.ax.set_ylim(min(self.values_y[0])*0.9, max(self.values_y[0])*1.1)
+        self.ax.set_ylim(min(self.values_y[0]) * 0.9, max(self.values_y[0]) * 1.1)
         print(self.ax.get_autoscale_on())
 
         self.canvas.draw()
 
-    def plot_live_data(self):
+    def enable_live_data(self):
+        if self.live_data_enabled:
+            self.live_data_enabled = False
+            self.label_arduino['text'] = "Arduino status: Disconnected"
+            arduino.ser.close()
+        else:
+            self.label_arduino['text'] = "Arduino status: Connecting..."
+            connected = arduino.connect_to_arduino()
+            if connected:
+                self.label_arduino['text'] = "Arduino status: Connected"
+                self.live_data_enabled = True
+            else:
+                self.label_arduino['text'] = "Arduno status: Port not found"
 
-        self.live_data_enabled = not self.live_data_enabled
-        print(self.live_data_enabled)
+    def plot_live_data(self):
+        global cond, counter, counter_tot, shown_data, hist_data, x_axis_data
+
         if self.live_data_enabled:
             line = import_live_data()
-            if len(self.data) < 100:
-                self.data.append(line)
+            counter += 100;
+            if len(shown_data) < 100:
+
+                shown_data = np.append(shown_data, line[10]*randint(0, 5))
+                # x_axis_data.append(line[self.selected_x[0]])
+                x_axis_data.append(counter)
+                print(f"({line[self.selected_x[0]]} , {line[self.selected_ys[0]]}")
+                if line is not None:
+                    self.data.append(line)
+                    print(len(self.data))
+
             else:
-                self.data[0:99] = self.data[1:100]
-                self.data[99] = line
-            self.lines.set_xdata(np.arange(0, len(self.data)))
-            # TODO these columns have yet to be fixed to show a proper value
-            self.lines.set_ydata(self.data)
-            self.ax.set_ylim(0, max(self.data) * 1.1)
+                shown_data[0:99] = shown_data[1:100]
+                shown_data[99] = line[self.selected_ys[0]]
+                x_axis_data[0:99] = x_axis_data[1:100]
+                #x_axis_data[99] = line[self.selected_x[0]]
+                x_axis_data[99] = counter;
+
+            self.lines.set_xdata(x_axis_data)
+            self.lines.set_ydata(shown_data)
+            self.ax.set_ylim(0, max(shown_data) * 1.1)
+            self.ax.set_xlim(min(x_axis_data), max(x_axis_data))
             self.canvas.draw()
 
-            root.after(10, self.plot_live_data())
-
-
+        if self.live_data_enabled:
+            self.root.after(10, self.plot_live_data)
 
     def plot_change_xy(self, x, y):
         print("plot_change_xy()")
@@ -248,10 +277,6 @@ class MotorsportPlotter:
         self.table['displaycolumns'] = self.selected_x + self.selected_ys
         self.plot_data()  # anterior: self.view_plot()
 
-
-
-
-
     def view_plot(self):
         print("view_plot()")
         """
@@ -260,6 +285,5 @@ class MotorsportPlotter:
         self.view_single_plot() if self.single_plot else self.view_multi_plot()
 
 
-root = Tk()
-program = MotorsportPlotter(root)
+program = MotorsportPlotter()
 program.root.mainloop()
