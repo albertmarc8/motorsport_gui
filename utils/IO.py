@@ -6,11 +6,6 @@ arduino = ArduinoReceiver()
 connected_to_arduino = False
 
 
-def connect_realtime_data():
-    arduino.find_port()
-    arduino.connect_to_arduino()
-
-
 def export_data(data):
     """
         Exports the data to a CSV using the ; as a separator (European standards).
@@ -93,12 +88,8 @@ def import_from_txt(self):
 
 
 def import_live_data():
-    global connected_to_arduino
+    return line_convert(arduino.read_from_arduino())
 
-    if not connected_to_arduino:
-        connect_realtime_data()
-        connected_to_arduino = True
-    return line_convert(read_realtime_line())
 
 def line_convert(info):
     """
@@ -122,14 +113,6 @@ def line_convert(info):
         for num_i in {20, 21}:
             variables[num_i] = int(variables[num_i])
     return variables
-
-
-def read_realtime_line():
-    """
-        The method will return a line received from the Serial port. The method connect_realtime_data() must be used
-        before invoking this method.
-    """
-    return arduino.read_from_arduino()
 
 
 def plot_on_start(self):
