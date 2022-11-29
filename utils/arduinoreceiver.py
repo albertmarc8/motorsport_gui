@@ -1,6 +1,7 @@
 import time
 import serial
 import serial.tools.list_ports
+from serial import PortNotOpenError
 
 
 class bcolors:
@@ -25,13 +26,16 @@ class ArduinoReceiver:
             if ("Arduino" in p.description) or ("CH340" in p.description) or ("USB Serial" in p.description):
                 print(p[0])
                 self.arduino = p[0]
+                return True
+        return False
 
     def connect_to_arduino(self):
-        while self.arduino == "":
+        if self.arduino is None:
             for i in range(10):
-                time.sleep(1)
-            self.find_port()
-        self.ser = serial.Serial(self.arduino, 115200)
+                if self.find_port():
+                    self.ser = serial.Serial(self.arduino, 115200)
+                    return True
+        return False
 
     def read_from_arduino(self):
         while True:
@@ -42,18 +46,10 @@ class ArduinoReceiver:
                 else:
                     return line
 
+            except PortNotOpenError as ex:
+                print("PortNotOpenError" + str(ex))
+                return None
+
             except Exception as e:
-                print(e)
+                print("READ ERROR: "+str(e))
                 continue
-
-    def flush(self):
-        self.ser.reset_input_buffer()
-
-    def test(self):
-        self.find_port()
-        self.connect_to_arduino()
-        print(self.read_from_arduino())
-
-#findPort()
-#connectToArduino()
-#data = readFromArduino()
