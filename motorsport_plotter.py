@@ -26,7 +26,8 @@ class MotorsportPlotter:
 
     def __init__(self):
         # GUI
-        self.label_arduino = None
+        self.label_arduino_text = None
+        self.label_arduino_status = None
         self.control_container = None
         self.axs = None
         self.toolbarFrame = None
@@ -116,7 +117,7 @@ class MotorsportPlotter:
         self.table_vsb.grid(column=0, row=1, sticky="NSE")
 
         # Placeholders
-        self.control_container = LabelFrame(self.root, text="controls", padx=60, pady=30)
+        self.control_container = LabelFrame(self.root, text="controls", pady=5)
         self.control_container.columnconfigure(0, weight=1)
         self.control_container.columnconfigure(1, weight=1)
         self.control_container.rowconfigure(0, weight=1)
@@ -125,9 +126,10 @@ class MotorsportPlotter:
         self.control_container.rowconfigure(3, weight=1)
         self.control_container.grid(column=1, row=1, sticky="NSEW")
 
-        self.label_arduino = Label(self.control_container, text="Arduino status: Not connected")
-        self.label_arduino.grid(column=0, row=0)
-
+        self.label_arduino_text = Label(self.control_container, text="Arduino Status:")
+        self.label_arduino_text.grid(column=0, row=0, sticky="NSEW")
+        self.label_arduino_status = Label(self.control_container, text="Not connected", fg='red')
+        self.label_arduino_status.grid(column=1, row=0, sticky="NSEW")
         self.view_plot()
 
     def view_multi_plot(self):
@@ -225,17 +227,21 @@ class MotorsportPlotter:
 
     def enable_live_data(self):
         if self.live_data_enabled:
-            self.live_data_enabled = False
-            self.label_arduino['text'] = "Arduino status: Disconnected"
             arduino.ser.close()
+            self.label_arduino_status['text'] = "Disconnected"
+            self.label_arduino_status['fg'] = "red"
+            self.live_data_enabled = False
         else:
-            self.label_arduino['text'] = "Arduino status: Connecting..."
+            self.label_arduino_status['text'] = "Connecting..."
+            self.label_arduino_status['fg'] = "blue"
             connected = arduino.connect_to_arduino()
             if connected:
-                self.label_arduino['text'] = "Arduino status: Connected"
+                self.label_arduino_status['text'] = "Connected"
+                self.label_arduino_status['fg'] = "green"
                 self.live_data_enabled = True
             else:
-                self.label_arduino['text'] = "Arduno status: Port not found"
+                self.label_arduino_status['text'] = "Port not found"
+                self.label_arduino_status['fg'] = "red"
 
     def plot_live_data(self):
         global cond, counter, counter_tot, shown_data, hist_data, x_axis_data
