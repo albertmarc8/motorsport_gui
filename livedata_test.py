@@ -8,7 +8,7 @@ from matplotlib.figure import Figure
 from utils.IO import *
 
 hist_data = []
-shown_data = []
+y_data = []
 cond = False
 counter = 0
 counter_tot = 0
@@ -16,7 +16,7 @@ counter_tot = 0
 
 def plot_data():
     print("plot data")
-    global cond, counter, counter_tot, shown_data, hist_data
+    global cond, counter, counter_tot, y_data, hist_data
 
     if cond:
         line = arduino.read_from_arduino()

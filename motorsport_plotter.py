@@ -11,11 +11,11 @@ from utils.IO import *
 from utils.field_names_constants import Fields
 
 hist_data = []
-shown_data = []
+y_data = [[] for n in range(len(Fields))]
 cond = True
 counter = 0
 counter_tot = 0
-x_axis_data = []
+x_data = []
 
 
 class MotorsportPlotter:
@@ -26,6 +26,8 @@ class MotorsportPlotter:
 
     def __init__(self):
         # GUI
+        self.label_time_status = None
+        self.label_time_text = None
         self.label_arduino_text = None
         self.label_arduino_status = None
         self.control_container = None
@@ -55,9 +57,9 @@ class MotorsportPlotter:
 
         self.canvas_counter = 0
         self.live_counter = 0
-        self.init_common_GUI()
+        self.init_common_gui()
 
-    def init_common_GUI(self):
+    def init_common_gui(self):
         # Window settings
         self.root.title("UJI Motorsport Plotter")
         self.root.geometry('1600x900')
@@ -128,8 +130,12 @@ class MotorsportPlotter:
 
         self.label_arduino_text = Label(self.control_container, text="Arduino Status:")
         self.label_arduino_text.grid(column=0, row=0, sticky="NSEW")
-        self.label_arduino_status = Label(self.control_container, text="Not connected", fg='red')
+        self.label_arduino_status = Label(self.control_container, text="Not connected", fg='blue')
         self.label_arduino_status.grid(column=1, row=0, sticky="NSEW")
+        self.label_time_text = Label(self.control_container, text="Moving seconds:")
+        self.label_time_text.grid(column=0, row=1, sticky="NSEW")
+        self.label_time_status = Label(self.control_container, text="ON", fg="green")
+        self.label_time_status.grid(column=1, row=1, sticky="NSEW")
         self.view_plot()
 
     def view_multi_plot(self):
@@ -180,28 +186,18 @@ class MotorsportPlotter:
 
         :return: Method does not return anything.
         """
-        print("view_single_plot()")
-        # if len(self.data) > 0:
-        # if self.figure is not None:
-        #     self.figure = None
-        # if self.canvas is not None:
-        #     self.canvas = None
-
-        # Dibujando plot
-
         self.ax = self.figure.add_subplot(111)
         self.ax.set_title("Realtime Data")
-        self.ax.set_ylabel("Y")
-        self.ax.set_xlabel("Miliseconds")
-        self.lines = self.ax.plot([], [])[0]
-
-
+        self.ax.set_ylabel(Fields[self.selected_ys[0]])
+        self.ax.set_xlabel(Fields[self.selected_x[0]])
+        self.lines = [[] for n in range(len(Fields))]
+        self.lines[0] = self.ax.plot([], [])[0]
+        self.lines[1] = self.ax.plot([], [])[0]
 
     def change_view(self):
         """
         Plot view switcher using a boolean to check which one is active.
         """
-        print("change_view()")
         # TODO plots need to be removed or hidden before display one or another, currently they are getting overlapped
         #  and it is visible
         if len(self.data) > 0:
@@ -217,19 +213,23 @@ class MotorsportPlotter:
             for j, value in enumerate(self.selected_ys):
                 self.values_y[j].append(self.data[i][value])
             self.values_x.append(self.data[i][self.selected_x[0]])
-        self.lines.set_xdata(self.values_x)
-        self.lines.set_ydata(self.values_y[0])
+
+        for sub_y in range(len(self.selected_ys)):
+            self.lines[sub_y].set_xdata(self.values_x)
+            self.lines[sub_y].set_ydata(self.values_y[0])
         self.ax.set_xlim(0, max(self.values_x))
         self.ax.set_ylim(min(self.values_y[0]) * 0.9, max(self.values_y[0]) * 1.1)
-        print(self.ax.get_autoscale_on())
+
+        self.ax.set_xlabel(Fields[self.selected_x[0]])
+        self.ax.set_ylabel(Fields[self.selected_ys[0]])
 
         self.canvas.draw()
 
     def enable_live_data(self):
         if self.live_data_enabled:
-            arduino.ser.close()
             self.label_arduino_status['text'] = "Disconnected"
-            self.label_arduino_status['fg'] = "red"
+            self.label_arduino_status['fg'] = "blue"
+            arduino.close()
             self.live_data_enabled = False
         else:
             self.label_arduino_status['text'] = "Connecting..."
@@ -244,32 +244,33 @@ class MotorsportPlotter:
                 self.label_arduino_status['fg'] = "red"
 
     def plot_live_data(self):
-        global cond, counter, counter_tot, shown_data, hist_data, x_axis_data
-
+        global cond, counter, counter_tot, y_data, hist_data, x_data
+        # optimize
         if self.live_data_enabled:
-            line = import_live_data()
-            counter += 100;
-            if len(shown_data) < 100:
 
-                shown_data = np.append(shown_data, line[10]*randint(0, 5))
+            line = import_live_data()
+            counter += 100
+            if len(y_data) < 100:
+                for sub_y in range(len(self.selected_ys)):
+                    y_data[sub_y].append(line[self.selected_ys[sub_y]] * randint(0, 5))
                 # x_axis_data.append(line[self.selected_x[0]])
-                x_axis_data.append(counter)
-                print(f"({line[self.selected_x[0]]} , {line[self.selected_ys[0]]}")
+                x_data.append(counter)
                 if line is not None:
                     self.data.append(line)
-                    print(len(self.data))
-
             else:
-                shown_data[0:99] = shown_data[1:100]
-                shown_data[99] = line[self.selected_ys[0]]
-                x_axis_data[0:99] = x_axis_data[1:100]
-                #x_axis_data[99] = line[self.selected_x[0]]
-                x_axis_data[99] = counter;
+                for sub_y in range(len(self.selected_ys)):
+                    y_data[sub_y][0:99] = y_data[sub_y][1:100]
+                    y_data[sub_y][99] = line[self.selected_ys[sub_y]]
 
-            self.lines.set_xdata(x_axis_data)
-            self.lines.set_ydata(shown_data)
-            self.ax.set_ylim(0, max(shown_data) * 1.1)
-            self.ax.set_xlim(min(x_axis_data), max(x_axis_data))
+                x_data[0:99] = x_data[1:100]
+                x_data[99] = line[self.selected_x[0]]
+
+            for sub_y in range(len(self.selected_ys)):
+                self.lines[sub_y].set_xdata(x_data)
+                self.lines[sub_y].set_ydata(y_data[sub_y])
+
+            self.ax.set_ylim(0, max(y_data[0]) * 1.1)
+            self.ax.set_xlim(min(x_data), max(x_data))
             self.canvas.draw()
 
         if self.live_data_enabled:
