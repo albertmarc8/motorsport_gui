@@ -20,6 +20,11 @@ class ArduinoReceiver:
         self.arduino = None
         self.ser = ""
 
+    def close(self):
+        self.ser = ""
+        self.arduino = None
+
+
     def find_port(self):
         ports = list(serial.tools.list_ports.comports())
         for p in ports:
