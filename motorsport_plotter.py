@@ -77,7 +77,7 @@ class MotorsportPlotter:
         self.my_menu.add_command(label="Export", command=lambda: export_data(self.data))
         self.my_menu.add_command(label="Enable/Disable realtime", command=self.enable_live_data)
         self.my_menu.add_command(label="Plot realtime", command=self.plot_live_data)
-        # self.my_menu.add_command(label="Single/Multiple graphs", command=self.change_view)
+        self.my_menu.add_command(label="Single/Multiple graphs", command=self.change_view)
 
         # View tables dropdown
         tables_menu = Menu(self.my_menu, tearoff=False)
@@ -146,6 +146,10 @@ class MotorsportPlotter:
 
         seconds = [vars[0] for vars in self.data]
         rpms = [vars[10] for vars in self.data]
+        water_temperature = [vars[5] for vars in self.data]
+        air_temperature = [vars[6] for vars in self.data]
+        throttle_position = [vars[13] for vars in self.data]
+        variables = [rpms, water_temperature, air_temperature, throttle_position]
 
         # Represent the table
         # self.table = Treeview(self.root)
@@ -167,9 +171,14 @@ class MotorsportPlotter:
         fig.add_subplot(121).plot(seconds, rpms)
         fig.add_subplot(131).plot(seconds, rpms)"""
         self.figure, self.axs = plt.subplots(2, 2, figsize=(5, 4))
-        for ax in self.axs.flat:
-            ax.set_title("Data plot")
-            ax.plot(seconds, rpms)
+
+
+        self.table['displaycolumns'] = [0] + [5, 6, 10, 13]
+        plot_names = ["RPMs", "Water temperature", "Air temperature", "Throttle position"]
+
+        for i, ax in enumerate(self.axs.flat):
+            ax.set_title(plot_names)
+            ax.plot(seconds, variables[i])
 
 
         """
