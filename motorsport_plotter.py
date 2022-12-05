@@ -14,11 +14,8 @@ from matplotlib.figure import Figure
 from utils.IO import *
 from utils.field_names_constants import Fields
 
-hist_data = []
 y_data = [[] for n in range(len(Fields))]
-cond = True
 counter = 0
-counter_tot = 0
 x_data = []
 
 # TODO cambiar a segundos
@@ -33,6 +30,7 @@ class MotorsportPlotter:
     live_data_enabled = False
 
     def __init__(self):
+        self.color_theme = 'default'
         customtkinter.set_appearance_mode("dark")  # Modes: system (default), light, dark
         customtkinter.set_default_color_theme("blue")  # Themes: blue (default), dark-blue, green
 
@@ -105,6 +103,8 @@ class MotorsportPlotter:
         tables_menu.add_command(label="View water temperature", command=lambda: self.plot_change_xy([0], [5]))
         tables_menu.add_command(label="** View water temperature IN")  # TODO add command=method to parameters
         tables_menu.add_command(label="** View water temperature OUT")  # TODO add command=method to parameters
+
+        self.my_menu.add_command(label="Change color theme", command=lambda: self.change_color_theme())
 
         self.figure = Figure()
 
@@ -219,21 +219,34 @@ class MotorsportPlotter:
         :return: Method does not return anything.
         """
         self.ax = self.figure.add_subplot(111)
-        self.ax.set_title("Realtime Data", color="white")
-        self.ax.set_facecolor('#242424')
-        self.figure.set_facecolor('#242424')
+        if self.color_theme == 'dark':
+            self.ax.set_title("Realtime Data", color="white")
+            self.ax.set_facecolor('#242424')
+            self.figure.set_facecolor('#242424')
+            self.ax.spines['bottom'].set_color('white')
+            self.ax.spines['top'].set_color('white')
+            self.ax.spines['right'].set_color('white')
+            self.ax.spines['left'].set_color('white')
+            self.ax.tick_params(axis='x', colors='white')
+            self.ax.tick_params(axis='y', colors='white')
+            self.ax.set_ylabel(Fields[self.selected_ys[0]], color="white")
+            self.ax.set_xlabel(Fields[self.selected_x[0]], color="white")
+        else:
+            # Set default colors
+            self.ax.set_title("Realtime Data", color="black")
+            self.ax.set_facecolor('white')
+            self.figure.set_facecolor('white')
+            self.ax.spines['bottom'].set_color('black')
+            self.ax.spines['top'].set_color('black')
+            self.ax.spines['right'].set_color('black')
+            self.ax.spines['left'].set_color('black')
+            self.ax.tick_params(axis='x', colors='black')
+            self.ax.tick_params(axis='y', colors='black')
+            self.ax.set_ylabel(Fields[self.selected_ys[0]], color="black")
+            self.ax.set_xlabel(Fields[self.selected_x[0]], color="black")
 
-        self.ax.spines['bottom'].set_color('white')
-        self.ax.spines['top'].set_color('white')
-        self.ax.spines['right'].set_color('white')
-        self.ax.spines['left'].set_color('white')
-
-        self.ax.tick_params(axis='x', colors='white')
-        self.ax.tick_params(axis='y', colors='white')
 
 
-        self.ax.set_ylabel(Fields[self.selected_ys[0]], color="white")
-        self.ax.set_xlabel(Fields[self.selected_x[0]], color="white")
         self.lines = [[] for n in range(len(Fields))]
         self.lines[0] = self.ax.plot([], [])[0]
         self.lines[1] = self.ax.plot([], [])[0]
@@ -288,7 +301,7 @@ class MotorsportPlotter:
                 self.label_arduino_status['fg'] = "red"
 
     def plot_live_data(self):
-        global cond, counter, counter_tot, y_data, hist_data, x_data
+        global counter, y_data, x_data
         # optimize
         if self.live_data_enabled:
 
@@ -335,6 +348,10 @@ class MotorsportPlotter:
         Display the plot, single or multi, depending which one is activated.
         """
         self.view_single_plot() if self.single_plot else self.view_multi_plot()
+
+    def change_color_theme(self):
+        self.color_theme = "dark" if self.color_theme == "default" else "default"
+        self.init_common_gui()
 
 
 program = MotorsportPlotter()
