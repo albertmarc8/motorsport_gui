@@ -1,8 +1,12 @@
 from random import randint, random
 
+import customtkinter
 import matplotlib.pyplot as plt
-from tkinter import *
-from tkinter.ttk import Treeview
+from tkinter import Label, Menu, LabelFrame, Scrollbar
+from tkinter.ttk import Treeview, Style
+from customtkinter import CTkFrame as Frame
+from customtkinter import CTk as Tk
+
 
 import numpy as np
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2Tk
@@ -17,6 +21,10 @@ counter = 0
 counter_tot = 0
 x_data = []
 
+# TODO cambiar a segundos
+# TODO opcion de tener el eje X fijo
+# TODO cambiar a custom tkinter
+# TODO cambiar tabla por columnas a mostrar en gráfica (on(off)
 
 class MotorsportPlotter:
     # Styling parameters
@@ -25,6 +33,9 @@ class MotorsportPlotter:
     live_data_enabled = False
 
     def __init__(self):
+        customtkinter.set_appearance_mode("dark")  # Modes: system (default), light, dark
+        customtkinter.set_default_color_theme("blue")  # Themes: blue (default), dark-blue, green
+
         # GUI
         self.label_time_status = None
         self.label_time_text = None
@@ -98,7 +109,7 @@ class MotorsportPlotter:
         self.figure = Figure()
 
         self.canvas = FigureCanvasTkAgg(self.figure, master=self.root)
-        self.canvas.get_tk_widget().grid(column=0, row=0, columnspan=2, sticky=NSEW, pady=(0, 50))
+        self.canvas.get_tk_widget().grid(column=0, row=0, columnspan=2, sticky="NSEW", pady=(0, 50))
         self.canvas.draw()
 
         # Plot navigation
@@ -107,7 +118,19 @@ class MotorsportPlotter:
         self.toolbar = NavigationToolbar2Tk(self.canvas, self.toolbarFrame)
 
         # Table
-        self.table = Treeview(self.root, columns=([Fields[n] for n in range(len(Fields))]))
+        style = Style()
+        style.configure("mystyle.Treeview", highlightthickness=0, bd=0,
+                        font=('Calibri', 11))  # Modify the font of the body
+        style.configure("mystyle.Treeview.Heading", font=('Calibri', 13, 'bold'))  # Modify the font of the headings
+
+        style.layout("mystyle.Treeview", [('mystyle.Treeview.treearea', {'sticky': 'nswe'})])  # Remove the borders
+
+
+        self.table = Treeview(self.root, columns=([Fields[n] for n in range(len(Fields))]), style="mystyle.Treeview")
+
+        self.table.tag_configure('odd', background='#E8E8E8')
+        self.table.tag_configure('even', background='#DFDFDF')
+
         self.table['show'] = 'headings'  # deletes the initial column without data (that is used for indexes/ids)
         self.table['displaycolumns'] = ()
         self.table_vsb = Scrollbar(self.root, orient="vertical")
@@ -259,9 +282,9 @@ class MotorsportPlotter:
 
             line = import_live_data()
             counter += 100
-            if len(y_data) < 100:
+            if len(y_data[0]) < 100:
                 for sub_y in range(len(self.selected_ys)):
-                    y_data[sub_y].append(line[self.selected_ys[sub_y]] * randint(0, 5))
+                    y_data[sub_y].append(line[self.selected_ys[sub_y]] * randint(0, 20))
                 # x_axis_data.append(line[self.selected_x[0]])
                 x_data.append(counter)
                 if line is not None:
@@ -272,7 +295,8 @@ class MotorsportPlotter:
                     y_data[sub_y][99] = line[self.selected_ys[sub_y]]
 
                 x_data[0:99] = x_data[1:100]
-                x_data[99] = line[self.selected_x[0]]
+                #x_data[99] = line[self.selected_x[0]]
+                x_data[99] = counter
 
             for sub_y in range(len(self.selected_ys)):
                 self.lines[sub_y].set_xdata(x_data)

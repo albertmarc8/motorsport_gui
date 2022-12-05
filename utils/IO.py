@@ -58,10 +58,16 @@ def import_data(data, table):
         :return: Returns a 2d array with int/float/string variables from the file.
         """
         # data = []
+        odd = True
         for line in open(file).readlines():
             converted_line = line_convert(line)
             data.append(converted_line)
-            table.insert('', 'end', values=converted_line)
+            if odd:
+                table.insert('', 'end', values=converted_line, tags=("odd",))
+                odd = not odd
+            else:
+                table.insert('', 'end', values=converted_line, tags=("even",))
+                odd = not odd
 
         return data
 
