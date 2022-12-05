@@ -219,9 +219,21 @@ class MotorsportPlotter:
         :return: Method does not return anything.
         """
         self.ax = self.figure.add_subplot(111)
-        self.ax.set_title("Realtime Data")
-        self.ax.set_ylabel(Fields[self.selected_ys[0]])
-        self.ax.set_xlabel(Fields[self.selected_x[0]])
+        self.ax.set_title("Realtime Data", color="white")
+        self.ax.set_facecolor('#242424')
+        self.figure.set_facecolor('#242424')
+
+        self.ax.spines['bottom'].set_color('white')
+        self.ax.spines['top'].set_color('white')
+        self.ax.spines['right'].set_color('white')
+        self.ax.spines['left'].set_color('white')
+
+        self.ax.tick_params(axis='x', colors='white')
+        self.ax.tick_params(axis='y', colors='white')
+
+
+        self.ax.set_ylabel(Fields[self.selected_ys[0]], color="white")
+        self.ax.set_xlabel(Fields[self.selected_x[0]], color="white")
         self.lines = [[] for n in range(len(Fields))]
         self.lines[0] = self.ax.plot([], [])[0]
         self.lines[1] = self.ax.plot([], [])[0]
