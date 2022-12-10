@@ -24,7 +24,8 @@ x_data = []
 # TODO cambiar a segundos
 # TODO opcion de tener el eje X fijo
 # TODO cambiar a custom tkinter
-# TODO cambiar tabla por columnas a mostrar en gráfica (on(off)
+# TODO cambiar tabla por columnas a mostrar en gráfica (on/off)
+# TODO leyenda
 
 class MotorsportPlotter:
     # Styling parameters
