@@ -1,19 +1,19 @@
-from random import randint, random
+from random import randint
 
 import customtkinter
 import matplotlib.pyplot as plt
-from tkinter import Label, Menu, LabelFrame, Scrollbar
-from tkinter.ttk import Treeview, Style
+from tkinter import Label, Menu, LabelFrame
 from customtkinter import CTkFrame as Frame
 from customtkinter import CTk as Tk
 
-
-import numpy as np
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2Tk
 from matplotlib.figure import Figure
 from utils.IO import *
 from utils.field_names_constants import Fields
 from view.UFSTreeview import UFSTreeview
+
+from menu import CustomMenu
+from controller import Controller
 
 y_data = [[] for n in range(len(Fields))]
 counter = 0
@@ -107,6 +107,8 @@ class MotorsportPlotter:
         tables_menu.add_command(label="** View water temperature OUT")  # TODO add command=method to parameters
 
         self.my_menu.add_command(label="Change color theme", command=lambda: self.change_color_theme())
+
+        self.my_menu = CustomMenu(self.root, Controller())
 
         self.figure = Figure()
 
