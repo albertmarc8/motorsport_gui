@@ -1,8 +1,7 @@
 from customtkinter import CTk as Tk
-from customtkinter import CTkFrame as Frame
 import customtkinter
 
-from menu import CustomMenu
+from view.menu import CustomMenu
 
 
 class View(Tk):
@@ -18,7 +17,7 @@ class View(Tk):
         self.title("UJI Motorsport Plotter")
         self.geometry('1600x900')
 
-        self.menu = CustomMenu(self, self.controller)
+        self.config(menu=CustomMenu(self, self.controller))
 
         self.columnconfigure(0, weight=3)
         self.columnconfigure(1, weight=1)

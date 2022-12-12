@@ -12,7 +12,7 @@ from utils.IO import *
 from utils.field_names_constants import Fields
 from view.UFSTreeview import UFSTreeview
 
-from menu import CustomMenu
+from view.menu import CustomMenu
 from controller import Controller
 
 y_data = [[] for n in range(len(Fields))]
