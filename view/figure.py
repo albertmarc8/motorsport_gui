@@ -18,7 +18,9 @@ class CustomFigure(Figure):
         self.toolbar = NavigationToolbar2Tk(self.canvas, self.toolbarFrame)
 
     def plot(self, x, y, title):
+        self.ax.clear()
+
         self.ax.plot(x, y)
         self.ax.set_title(title)
+        self.ax.ticklabel_format(useOffset=False, style='plain')
         self.canvas.draw()
-        print("Plotting")

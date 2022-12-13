@@ -16,21 +16,36 @@ class CustomMenu(Menu):
         tables_menu = Menu(self, tearoff=False)
         self.add_cascade(menu=tables_menu, label="View tables")
         tables_menu.add_command(label="** View airflow")  # TODO add command=method to parameters
-        tables_menu.add_command(label="View air temperature", command=lambda: self.controller.view_air_temperature())
+        tables_menu.add_command(label="View air temperature", command=self.view_air_temperature)
         tables_menu.add_command(label="** View engine block temperature")  # TODO add command=method to parameters
-        tables_menu.add_command(label="View gear", command=lambda: self.controller.view_gear())
-        tables_menu.add_command(label="View oil pressure", command=lambda: self.controller.view_oil_pressure())
+        tables_menu.add_command(label="View gear", command=self.view_gear)
+        tables_menu.add_command(label="View oil pressure", command=self.view_oil_pressure)
         tables_menu.add_command(label="** View oil temperature")  # TODO add command=method to parameters
         tables_menu.add_command(label="View throttle position and relative throttle position",
-                                command=lambda: self.controller.view_throttle_position())
+                                command=self.view_throttle_position)
         tables_menu.add_command(label="View RPM", command=self.view_rpm)
-        tables_menu.add_command(label="View water temperature", command=lambda: self.controller.view_water_temperature())
+        tables_menu.add_command(label="View water temperature", command=self.view_water_temperature)
         tables_menu.add_command(label="** View water temperature IN")  # TODO add command=method to parameters
         tables_menu.add_command(label="** View water temperature OUT")  # TODO add command=method to parameters
 
         tables_menu.add_command(label="** View water temperature OUT")  # TODO add command=method to parameters
 
-        self.add_command(label="Change color theme", command=lambda: self.controller.change_color_theme())
+        self.add_command(label="Change color theme", command=lambda: self.controller.change_color_theme)
+
+    def view_air_temperature(self):
+        self.controller.view_air_temperature(self.root)
+
+    def view_gear(self):
+        self.controller.view_gear(self.root)
+
+    def view_oil_pressure(self):
+        self.controller.view_oil_pressure(self.root)
+
+    def view_throttle_position(self):
+        self.controller.view_throttle_position(self.root)
 
     def view_rpm(self):
         self.controller.view_rpm(self.root)
+
+    def view_water_temperature(self):
+        self.controller.view_water_temperature(self.root)
