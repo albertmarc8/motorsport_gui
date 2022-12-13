@@ -12,8 +12,6 @@ from utils.IO import *
 from utils.field_names_constants import Fields
 from view.UFSTreeview import UFSTreeview
 
-from view.menu import CustomMenu
-from controller import Controller
 
 y_data = [[] for n in range(len(Fields))]
 counter = 0
@@ -107,8 +105,6 @@ class MotorsportPlotter:
         tables_menu.add_command(label="** View water temperature OUT")  # TODO add command=method to parameters
 
         self.my_menu.add_command(label="Change color theme", command=lambda: self.change_color_theme())
-
-        self.my_menu = CustomMenu(self.root, Controller())
 
         self.figure = Figure()
 
