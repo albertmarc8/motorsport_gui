@@ -1,8 +1,9 @@
 from tkinter import LabelFrame, Label
+from tkinter import ttk
 
 class CustomPlaceholder(LabelFrame):
     def __init__(self, parent):
-        super().__init__(parent, text="controls", pady=5)
+        super().__init__(parent, text="controls", pady=5, background="white")
         self.columnconfigure(0, weight=1)
         self.columnconfigure(1, weight=1)
         self.rowconfigure(0, weight=1)
@@ -19,3 +20,4 @@ class CustomPlaceholder(LabelFrame):
         self.label_time_text.grid(column=0, row=1, sticky="NSEW")
         self.label_time_status = Label(self, text="ON", fg="green")
         self.label_time_status.grid(column=1, row=1, sticky="NSEW")
+

@@ -7,7 +7,7 @@ from view.UFSTreeview import UFSTreeview
 from view.figure import CustomFigure
 from view.menu import CustomMenu
 from view.placeholder import CustomPlaceholder
-
+from view.style_manager import StyleManager
 
 class View(Tk):
 
@@ -16,7 +16,10 @@ class View(Tk):
 
         self.controller = controller
 
-        self.color_theme = 'default'
+        self.style = StyleManager(style_name="dark")
+
+
+
         customtkinter.set_appearance_mode("dark")  # Modes: system (default), light, dark
 
         self.title("UJI Motorsport Plotter")
@@ -56,7 +59,13 @@ class View(Tk):
         pass
 
     def change_color_theme(self):
-        pass
+
+
+        self.control_container.reload()
+        self.table.reload()
+        self.figure.reload()
+
+
 
     def plot(self, x, y, title):
         self.figure.plot(x, y, title)
