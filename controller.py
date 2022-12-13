@@ -1,5 +1,6 @@
 from model import Model
 from view.view import View
+from matplotlib import pyplot as plt
 
 
 class Controller:
@@ -8,10 +9,10 @@ class Controller:
         self.view = View(self)
 
     def import_data(self):
-        pass
+        self.model.import_data()
 
     def export_data(self):
-        pass
+        self.model.export_data()
 
     def enable_live_data(self):
         pass
@@ -34,11 +35,16 @@ class Controller:
     def view_throttle_position(self):
         pass
 
-    def view_rpm(self):
-        pass
+    def view_rpm(self, view):
+        view.plot(self.model.get_seconds(), self.model.get_rpms(), "RPM")
 
     def view_water_temperature(self):
         pass
 
     def change_color_theme(self):
         pass
+
+if __name__ == '__main__':
+    controller = Controller()
+    controller.import_data()
+    #controller.view_rpm()
