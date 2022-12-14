@@ -1,4 +1,5 @@
-from tkinter import LabelFrame, Label
+import os
+from tkinter import LabelFrame, Label, PhotoImage
 
 from customtkinter import CTk as Tk
 import customtkinter
@@ -17,11 +18,9 @@ class View(Tk):
 
         self.controller = controller
 
-
-
+        self.iconphoto(False, PhotoImage(file=os.path.join(os.path.dirname(__file__), "uji_motorsport.png")))
 
         customtkinter.set_appearance_mode("dark")  # Modes: system (default), light, dark
-
         self.title("UJI Motorsport Plotter")
         self.geometry('1600x900')
 
