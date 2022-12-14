@@ -5,8 +5,7 @@ class CustomMenu(Menu):
         super().__init__(root)
         self.controller = controller
         self.root = root
-        self.config(bg=self.root.style.get_primary_color())
-
+        self.set_style()
 
         self.add_command(label="Import", command=lambda: self.controller.import_data())
         self.add_command(label="Export", command=lambda: self.controller.export_data())
@@ -54,3 +53,10 @@ class CustomMenu(Menu):
 
     def change_color_theme(self):
         self.root.change_style()
+        self.set_style()
+
+    def set_style(self):
+        self.config(bg=self.root.style.get_secondary_color(),
+                    fg=self.root.style.get_contrast_color(),
+                    activebackground=self.root.style.get_primary_color(),
+                    activeforeground=self.root.style.get_contrast_color())
