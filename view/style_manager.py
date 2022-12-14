@@ -1,16 +1,16 @@
 class StyleManager:
-    def __init__(self, style_name="default"):
+    def __init__(self, style_name="light"):
         if style_name == "dark":
             self.dark()
         else:
-            # Init with default style
-            self.style_name = "default"
+            # Init with light style
+            self.style_name = "light"
             self.primary_color = "#fff"
             self.secondary_color = "lightgray"
             self.contrast_color = "#000"
 
-    def default(self):
-        self.style_name = "default"
+    def light(self):
+        self.style_name = "light"
         self.primary_color = "#fff"
         self.secondary_color = "lightgray"
         self.contrast_color = "#000"
@@ -22,7 +22,7 @@ class StyleManager:
         self.contrast_color = "#fff"
 
     def change_style(self):
-        self.dark() if self.style_name == "default" else self.default()
+        self.dark() if self.style_name == "light" else self.light()
 
     def get_style_name(self):
         return self.style_name

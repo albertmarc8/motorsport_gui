@@ -63,6 +63,9 @@ class View(Tk):
         #self.control_container.reload()
         #self.table.reload()
         self.figure.set_style()
+        self.control_container.set_style()
+
+        customtkinter.set_appearance_mode(self.style.get_style_name())  # Modes: system (default), light, dark
 
 
 
