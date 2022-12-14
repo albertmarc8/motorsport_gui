@@ -13,10 +13,10 @@ class View(Tk):
 
     def __init__(self, controller):
         super().__init__()
+        self.style = StyleManager(style_name="dark")
 
         self.controller = controller
 
-        self.style = StyleManager(style_name="dark")
 
 
 
@@ -58,12 +58,12 @@ class View(Tk):
     def change_view(self):
         pass
 
-    def change_color_theme(self):
+    def change_style(self):
 
-
-        self.control_container.reload()
-        self.table.reload()
-        self.figure.reload()
+        self.style.change_style()
+        #self.control_container.reload()
+        #self.table.reload()
+        self.figure.set_style()
 
 
 

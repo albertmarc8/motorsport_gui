@@ -5,6 +5,8 @@ class CustomMenu(Menu):
         super().__init__(root)
         self.controller = controller
         self.root = root
+        self.config(bg=self.root.style.get_primary_color())
+
 
         self.add_command(label="Import", command=lambda: self.controller.import_data())
         self.add_command(label="Export", command=lambda: self.controller.export_data())
@@ -30,7 +32,7 @@ class CustomMenu(Menu):
 
         tables_menu.add_command(label="** View water temperature OUT")  # TODO add command=method to parameters
 
-        self.add_command(label="Change color theme", command=lambda: self.controller.change_color_theme)
+        self.add_command(label="Change color theme", command=self.change_color_theme)
 
     def view_air_temperature(self):
         self.controller.view_air_temperature(self.root)
@@ -49,3 +51,6 @@ class CustomMenu(Menu):
 
     def view_water_temperature(self):
         self.controller.view_water_temperature(self.root)
+
+    def change_color_theme(self):
+        self.root.change_style()
