@@ -9,6 +9,7 @@ from view.figure import CustomFigure
 from view.menu import CustomMenu
 from view.placeholder import CustomPlaceholder
 from view.style_manager import StyleManager
+from view.table_view_selector import TableViewSelector
 
 class View(Tk):
 
@@ -32,7 +33,7 @@ class View(Tk):
         self.config(menu=CustomMenu(self, self.controller))
 
         # Table
-        self.table = UFSTreeview(self)
+        self.table = TableViewSelector(self, controller)
 
         # Placeholders
         self.control_container = CustomPlaceholder(self)
