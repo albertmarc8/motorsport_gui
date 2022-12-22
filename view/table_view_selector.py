@@ -34,7 +34,9 @@ class TableViewSelector(LabelFrame):
                         "Water temperature", "Water temperature IN", "Water temperature OUT", "CLEAR"]
 
         options_functions = [None, self.view_air_temperature, None, self.view_gear, self.view_oil_pressure, None,
-                                self.view_throttle_position, self.view_rpm, None, None, None, self.clear_view]
+                             self.view_throttle_position, self.view_rpm, None, None, None, self.clear_view]
+
+        self.active_buttons = [False, False, False, False, False, False, False, False, False, False, False, False]
 
         self.buttons = []
 
@@ -45,7 +47,6 @@ class TableViewSelector(LabelFrame):
                 button.grid(column=column, row=row, sticky="NSEW")
                 self.buttons.append(button)
 
-
         self.set_style()
 
     def set_style(self):
@@ -53,33 +54,54 @@ class TableViewSelector(LabelFrame):
                     foreground=self.root.style.get_contrast_color(),
                     highlightbackground=self.root.style.get_contrast_color())
 
-        for button in self.buttons:
-            button.configure(bg=self.root.style.get_primary_color(),
-                             fg=self.root.style.get_contrast_color(),
-                             activebackground=self.root.style.get_secondary_color(),
-                             activeforeground=self.root.style.get_contrast_color())
+        for i in range(len(self.buttons)):
+            if self.active_buttons[i]:
+                self.buttons[i].configure(bg=self.root.style.get_secondary_color(),
+                                          fg=self.root.style.get_contrast_color(),
+                                          activebackground=self.root.style.get_secondary_color(),
+                                          activeforeground=self.root.style.get_contrast_color())
+            else:
+                self.buttons[i].configure(bg=self.root.style.get_primary_color(),
+                                          fg=self.root.style.get_contrast_color(),
+                                          activebackground=self.root.style.get_secondary_color(),
+                                          activeforeground=self.root.style.get_contrast_color())
 
-
-        #self.label_arduino_text.config(background=self.root.style.get_primary_color(), foreground=self.root.style.get_contrast_color())
-
+        # self.label_arduino_text.config(background=self.root.style.get_primary_color(), foreground=self.root.style.get_contrast_color())
 
     def view_air_temperature(self):
         self.controller.view_air_temperature(self.root)
+        self.toggle_button(1)
 
     def view_gear(self):
         self.controller.view_gear(self.root)
+        self.toggle_button(3)
 
     def view_oil_pressure(self):
         self.controller.view_oil_pressure(self.root)
+        self.toggle_button(4)
 
     def view_throttle_position(self):
         self.controller.view_throttle_position(self.root)
+        self.toggle_button(6)
 
     def view_rpm(self):
         self.controller.view_rpm(self.root)
+        self.toggle_button(7)
 
     def view_water_temperature(self):
         self.controller.view_water_temperature(self.root)
+        self.toggle_button(8)
 
     def clear_view(self):
-        pass
+        self.controller.clear_plot(self.root)
+        for i in range(len(self.active_buttons)):
+            if self.active_buttons[i]:
+                self.toggle_button(i)
+
+    def toggle_button(self, index):
+        if self.active_buttons[index]:
+            self.active_buttons[index] = False
+            self.buttons[index].configure(bg=self.root.style.get_primary_color())
+        else:
+            self.active_buttons[index] = True
+            self.buttons[index].configure(bg=self.root.style.get_secondary_color())

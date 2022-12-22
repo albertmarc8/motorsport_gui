@@ -63,8 +63,9 @@ class View(Tk):
 
         customtkinter.set_appearance_mode(self.style.get_style_name())  # Modes: system (default), light, dark
 
-
-
     def plot(self, x, y, title):
         self.figure.plot(x, y, title)
         print("Plotting")
+
+    def clear_plot(self):
+        self.figure.clear_plots()

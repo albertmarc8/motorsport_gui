@@ -13,7 +13,7 @@ class CustomFigure(Figure):
         self.ax = self.add_subplot(111)
         self.canvas = FigureCanvasTkAgg(self, master=root)
         self.canvas.get_tk_widget().grid(column=0, row=0, columnspan=2, sticky="NSEW", pady=(0, 50))
-
+        self.plotting_data = []
 
 
         # Plot navigation
@@ -52,9 +52,30 @@ class CustomFigure(Figure):
                                              activeforeground=self.root.style.get_primary_color())
 
     def plot(self, x, y, title):
-        self.ax.clear()
+        actual_titles = [title for x, y, title in self.plotting_data]
+        if title in actual_titles:
 
-        self.ax.plot(x, y)
-        self.ax.set_title(title, color=self.root.style.get_contrast_color())
+            title_index_in_plotting_data = actual_titles.index(title)
+            self.plotting_data.pop(title_index_in_plotting_data)
+            self.ax.clear()
+            for i, (x, y, title) in enumerate(self.plotting_data):
+                self.ax.plot(x, y)
+        else:
+            self.plotting_data.append((x, y, title))
+            self.ax.plot(x, y)
+
+        #self.ax.plot(x, y)
+        #self.ax.set_title(title, color=self.root.style.get_contrast_color())
         self.ax.ticklabel_format(useOffset=False, style='plain')
         self.canvas.draw()
+
+    def clear_plots(self):
+        self.ax.clear()
+        self.canvas.draw()
+        self.plotting_data = []
+
+    def find_title_index_in_plotting_data(self, title):
+        for i, (x, y, title) in enumerate(self.plotting_data):
+            if title == title:
+                return i
+        return None

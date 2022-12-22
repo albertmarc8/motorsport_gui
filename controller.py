@@ -42,6 +42,9 @@ class Controller:
     def view_water_temperature(self, view):
         view.plot(self.model.get_seconds(), self.model.get_water_temperature(), "Water Temperature")
 
+    def clear_plot(self, view):
+        view.clear_plot()
+
     def change_color_theme(self):
         pass
 
