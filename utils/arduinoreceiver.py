@@ -1,6 +1,6 @@
 import serial
 import serial.tools.list_ports
-from serial import PortNotOpenError
+from serial import PortNotOpenError, SerialException
 
 
 class bcolors:
@@ -36,7 +36,11 @@ class ArduinoReceiver:
         if self.arduino is None:
             for i in range(20):
                 if self.find_port():
-                    self.ser = serial.Serial(self.arduino, 115200)
+                    try:
+                        self.ser = serial.Serial(self.arduino, 115200)
+                    except SerialException as ex:
+                        print("Couldn't connect to COM")
+                        return False
                     return True
         return False
 
@@ -44,7 +48,7 @@ class ArduinoReceiver:
         while True:
             try:
                 line = self.ser.readline().decode("UTF-8")
-                if line == "":
+                if line == "" or not line[0].isdigit():
                     continue
                 else:
                     return line
