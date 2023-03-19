@@ -1,9 +1,10 @@
 from tkinter import filedialog
+from utils.IO import *
 
 import pandas as plt
 class Model:
     def __init__(self):
-        pass
+        self.live_data_enabled = False
 
     def import_data(self):
         filename = filedialog.askopenfilename(defaultextension="txt")
@@ -13,7 +14,39 @@ class Model:
         pass
 
     def enable_live_data(self):
-        pass
+
+        """
+        if self.live_data_enabled:
+            self.label_arduino_status['text'] = "Disconnected"
+            self.label_arduino_status['fg'] = "blue"
+            arduino.close()
+            self.live_data_enabled = False
+        else:
+            self.label_arduino_status['text'] = "Connecting..."
+            self.label_arduino_status['fg'] = "blue"
+            connected = arduino.connect_to_arduino()
+            if connected:
+                self.label_arduino_status['text'] = "Connected"
+                self.label_arduino_status['fg'] = "green"
+                self.live_data_enabled = True
+            else:
+                self.label_arduino_status['text'] = "Port not found"
+                self.label_arduino_status['fg'] = "red"
+        """
+
+        if self.live_data_enabled:
+            arduino.close()
+            self.live_data_enabled = False
+            return "Disconnected", "blue"
+        else:
+            connected = arduino.connect_to_arduino()
+            if connected:
+                self.live_data_enabled = True
+                return "Connected", "green"
+            else:
+                return "Port not found", "red"
+
+
 
     def get_seconds(self):
         return self.df[0]

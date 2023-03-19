@@ -14,8 +14,8 @@ class Controller:
     def export_data(self):
         self.model.export_data()
 
-    def enable_live_data(self):
-        pass
+    def enable_live_data(self, view):
+        view.enable_live_data(self.model.enable_live_data())
 
     def plot_live_data(self):
         pass
@@ -51,4 +51,5 @@ class Controller:
 if __name__ == '__main__':
     controller = Controller()
     controller.import_data()
+    #controller.enable_live_data()
     #controller.view_rpm()
