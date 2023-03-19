@@ -85,24 +85,25 @@ class MotorsportPlotter:
         self.my_menu.add_command(label="Import", command=lambda: import_data(self.data, self.table))
         self.my_menu.add_command(label="Export", command=lambda: export_data(self.data))
         self.my_menu.add_command(label="Enable/Disable realtime", command=self.enable_live_data)
-        self.my_menu.add_command(label="Plot realtime", command=self.plot_live_data)
-        self.my_menu.add_command(label="Single/Multiple graphs", command=self.change_view)
+        # self.my_menu.add_command(label="Single/Multiple graphs", command=self.change_view)
 
         # View tables dropdown
         tables_menu = Menu(self.my_menu, tearoff=False)
         self.my_menu.add_cascade(menu=tables_menu, label="View tables")
-        tables_menu.add_command(label="** View airflow")  # TODO add command=method to parameters
+        #tables_menu.add_command(label="** View airflow")  # TODO add command=method to parameters
         tables_menu.add_command(label="View air temperature", command=lambda: self.plot_change_xy([0], [6]))
-        tables_menu.add_command(label="** View engine block temperature")  # TODO add command=method to parameters
+        #tables_menu.add_command(label="** View engine block temperature")  # TODO add command=method to parameters
         tables_menu.add_command(label="View gear", command=lambda: self.plot_change_xy([0], [20]))
         tables_menu.add_command(label="View oil pressure", command=lambda: self.plot_change_xy([0], [21]))
-        tables_menu.add_command(label="** View oil temperature")  # TODO add command=method to parameters
+        #tables_menu.add_command(label="** View oil temperature")  # TODO add command=method to parameters
         tables_menu.add_command(label="View throttle position and relative throttle position",
                                 command=lambda: self.plot_change_xy([0], [13, 14]))
         tables_menu.add_command(label="View RPM", command=lambda: self.plot_change_xy([0], [10]))
         tables_menu.add_command(label="View water temperature", command=lambda: self.plot_change_xy([0], [5]))
-        tables_menu.add_command(label="** View water temperature IN")  # TODO add command=method to parameters
-        tables_menu.add_command(label="** View water temperature OUT")  # TODO add command=method to parameters
+        #tables_menu.add_command(label="** View water temperature IN")  # TODO add command=method to parameters
+        #tables_menu.add_command(label="** View water temperature OUT")  # TODO add command=method to parameters
+
+        self.my_menu.add_command(label="Plot realtime", command=self.plot_live_data)
 
         self.my_menu.add_command(label="Change color theme", command=lambda: self.change_color_theme())
 
@@ -288,9 +289,10 @@ class MotorsportPlotter:
             counter += 100
             if len(y_data[0]) < 100:
                 for sub_y in range(len(self.selected_ys)):
-                    y_data[sub_y].append(line[self.selected_ys[sub_y]] * randint(0, 20))
-                # x_axis_data.append(line[self.selected_x[0]])
-                x_data.append(counter)
+                    y_data[sub_y].append(line[self.selected_ys[sub_y]])
+
+                x_data.append(line[self.selected_x[0]])
+                #x_data.append(counter)
                 if line is not None:
                     self.data.append(line)
             else:
@@ -299,8 +301,8 @@ class MotorsportPlotter:
                     y_data[sub_y][99] = line[self.selected_ys[sub_y]]
 
                 x_data[0:99] = x_data[1:100]
-                #x_data[99] = line[self.selected_x[0]]
-                x_data[99] = counter
+                x_data[99] = line[self.selected_x[0]]
+                #x_data[99] = counter
 
             for sub_y in range(len(self.selected_ys)):
                 self.lines[sub_y].set_xdata(x_data)
