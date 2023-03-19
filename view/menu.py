@@ -9,7 +9,7 @@ class CustomMenu(Menu):
 
         self.add_command(label="Import", command=lambda: self.controller.import_data())
         self.add_command(label="Export", command=lambda: self.controller.export_data())
-        self.add_command(label="Enable/Disable realtime", command=self.controller.enable_live_data())
+        self.add_command(label="Enable/Disable realtime", command=self.enable_live_data)
         self.add_command(label="Plot realtime", command=self.controller.plot_live_data())
         self.add_command(label="Single/Multiple graphs", command=self.controller.change_view())
 
@@ -32,6 +32,9 @@ class CustomMenu(Menu):
         tables_menu.add_command(label="** View water temperature OUT")  # TODO add command=method to parameters
 
         self.add_command(label="Change color theme", command=self.change_color_theme)
+
+    def enable_live_data(self):
+        self.controller.enable_live_data(self.root)
 
     def view_air_temperature(self):
         self.controller.view_air_temperature(self.root)

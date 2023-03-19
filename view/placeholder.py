@@ -26,6 +26,10 @@ class CustomPlaceholder(LabelFrame):
 
         self.set_style()
 
+    def toggle_live_data(self, status, color):
+        self.label_arduino_status['text'] = status
+        self.label_arduino_status['fg'] = color
+
     def set_style(self):
         self.config(background=self.root.style.get_primary_color(),
                     foreground=self.root.style.get_contrast_color(),

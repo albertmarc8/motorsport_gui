@@ -68,6 +68,9 @@ class TableViewSelector(LabelFrame):
 
         # self.label_arduino_text.config(background=self.root.style.get_primary_color(), foreground=self.root.style.get_contrast_color())
 
+    def enable_live_data(self):
+        self.controller.enable_live_data(self.root)
+
     def view_air_temperature(self):
         self.controller.view_air_temperature(self.root)
         self.toggle_button(1)

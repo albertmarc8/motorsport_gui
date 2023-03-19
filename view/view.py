@@ -43,8 +43,8 @@ class View(Tk):
 
         self.mainloop()
 
-    def enable_live_data(self):
-        pass
+    def enable_live_data(self, asdf): # todo ---
+        self.control_container.toggle_live_data(asdf[0], asdf[1])
 
     def plot_live_data(self):
         pass
