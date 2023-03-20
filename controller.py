@@ -15,7 +15,8 @@ class Controller:
         self.model.export_data()
 
     def enable_live_data(self, view):
-        view.enable_live_data(self.model.enable_live_data())
+        status, color = self.model.enable_live_data()
+        view.enable_live_data(status, color)
 
     def plot_live_data(self):
         pass
