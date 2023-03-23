@@ -39,11 +39,12 @@ class Model:
             self.live_data_enabled = False
             return "Disconnected", "blue"
         else:
-            connected = arduino.connect_to_arduino()
+            connected, port_selected = arduino.connect_to_arduino()
             if connected:
                 self.live_data_enabled = True
-                return "Connected", "green"
+                return "Connected to " + port_selected, "green"
             else:
+                self.live_data_enabled = False
                 return "Port not found", "red"
 
 
