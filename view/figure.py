@@ -4,7 +4,6 @@ from matplotlib.figure import Figure
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2Tk
 from customtkinter import CTkFrame as Frame
 from customtkinter import CTk as Tk
-#from utils.io import *
 
 
 class CustomFigure(Figure):
@@ -55,7 +54,6 @@ class CustomFigure(Figure):
     def plot(self, x, y, title):
         actual_titles = [title for x, y, title in self.plotting_data]
         if title in actual_titles:
-
             title_index_in_plotting_data = actual_titles.index(title)
             self.plotting_data.pop(title_index_in_plotting_data)
             self.ax.clear()
@@ -65,9 +63,10 @@ class CustomFigure(Figure):
             self.plotting_data.append((x, y, title))
             self.ax.plot(x, y, label=title)
 
-        #self.ax.plot(x, y)
-        #self.ax.set_title(title, color=self.root.style.get_contrast_color())
-        self.ax.legend(loc="upper left")
+        # self.ax.plot(x, y)
+        # self.ax.set_title(title, color=self.root.style.get_contrast_color())
+        self.ax.legend(loc="upper left", facecolor=self.root.style.get_primary_color(),
+                       labelcolor=self.root.style.get_contrast_color())
         self.ax.ticklabel_format(useOffset=False, style='plain')
         self.canvas.draw()
 
@@ -84,9 +83,8 @@ class CustomFigure(Figure):
 
 
     def plot_live_data(self, title):
-
         counter = 0
-        y_data = [] 
+        y_data = []
         x_data = []
 
         self.ax.clear()
