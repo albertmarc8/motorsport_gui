@@ -4,6 +4,7 @@ from utils.arduinoreceiver import ArduinoReceiver
 
 arduino = ArduinoReceiver()
 connected_to_arduino = False
+oldMarcha = 0
 
 
 def export_data(data):
@@ -104,6 +105,7 @@ def line_convert(info):
     :param info: The line that will be converted into an array.
     :return: The properly formatted array containing ints, floats and strings.
     """
+    global oldMarcha
     variables = info.rstrip().split(",")
 
     # Conversion: strings -> int
@@ -118,6 +120,12 @@ def line_convert(info):
     if len(variables) == 22:
         for num_i in {20, 21}:
             variables[num_i] = int(variables[num_i])
+            if num_i == 20:
+                if variables[num_i] > 7:
+                    variables[num_i] = oldMarcha
+                else:
+                    oldMarcha = variables[num_i]
+
     return variables
 
 
