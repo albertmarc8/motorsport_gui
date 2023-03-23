@@ -25,8 +25,7 @@ class Controller:
         pass
 
     def view_air_temperature(self, view):
-        view.plot(self.model.get_seconds(), self.model.get_air_temperature(), "RPM")
-
+        view.plot(self.model.get_seconds(), self.model.get_air_temperature(), "Air temperature")
 
     def view_gear(self, view):
         view.plot(self.model.get_seconds(), self.model.get_gear(), "Gear")
