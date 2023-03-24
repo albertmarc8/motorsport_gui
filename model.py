@@ -5,6 +5,11 @@ import pandas as plt
 class Model:
     def __init__(self):
         self.live_data_enabled = False
+        try:
+            self.df = plt.read_csv("../6508.txt", header=None)
+            print("Succes reading default file.")
+        except:
+            print("No default file detected.")
 
     def import_data(self):
         filename = filedialog.askopenfilename(defaultextension="txt")
@@ -39,12 +44,11 @@ class Model:
             self.live_data_enabled = False
             return "Disconnected", "blue"
         else:
-            connected, port_selected = arduino.connect_to_arduino()
+            connected = arduino.connect_to_arduino()
             if connected:
                 self.live_data_enabled = True
-                return "Connected to " + port_selected, "green"
+                return "Connected", "green"
             else:
-                self.live_data_enabled = False
                 return "Port not found", "red"
 
 
@@ -69,6 +73,9 @@ class Model:
 
     def get_water_temperature(self):
         return self.df[5]
+
+    def is_live_data_enabled(self):
+        return self.live_data_enabled
 
 
 if __name__ == '__main__':
