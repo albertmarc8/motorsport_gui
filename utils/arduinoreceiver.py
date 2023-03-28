@@ -33,10 +33,12 @@ class ArduinoReceiver:
         :return: A port selected based on matching probable names of the device. 
         """""
         ports = serial.tools.list_ports.comports()
+        possible_ports_names = {"Arduino", "CH340", "USB Serial", "CP210", "CH910"}
         for p in ports:
-            if ("Arduino" in p.description) or ("CH340" in p.description) or ("USB Serial" in p.description) or ("CP210" in p.description):
-                self.arduino = p[0]
-                return True, p.name
+            for port_name_substring in possible_ports_names:
+                if port_name_substring in p.description:
+                    self.arduino = p[0]
+                    return True, p.name
 
         return False, None
 
