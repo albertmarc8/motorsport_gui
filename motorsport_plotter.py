@@ -271,9 +271,9 @@ class MotorsportPlotter:
         else:
             self.label_arduino_status['text'] = "Connecting..."
             self.label_arduino_status['fg'] = "blue"
-            connected = arduino.connect_to_arduino()
+            connected, port_selected = arduino.connect_to_arduino()
             if connected:
-                self.label_arduino_status['text'] = "Connected"
+                self.label_arduino_status['text'] = "Connected to " + port_selected
                 self.label_arduino_status['fg'] = "green"
                 self.live_data_enabled = True
             else:
@@ -286,6 +286,7 @@ class MotorsportPlotter:
         if self.live_data_enabled:
 
             line = import_live_data()
+            print(line)
             counter += 100
             if len(y_data[0]) < 100:
                 for sub_y in range(len(self.selected_ys)):
