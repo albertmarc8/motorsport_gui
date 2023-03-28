@@ -24,9 +24,9 @@ class View(Tk):
         customtkinter.set_appearance_mode(self.style.get_style_name())  # Modes: system (default), light, dark
         self.title("UJI Motorsport Plotter")
         self.geometry('1600x900')
-        self.columnconfigure(0, weight=3)
+        self.columnconfigure(0, weight=4)
         self.columnconfigure(1, weight=1)
-        self.rowconfigure(0, weight=3)
+        self.rowconfigure(0, weight=1)
         self.rowconfigure(1, weight=1)
 
         # Menu

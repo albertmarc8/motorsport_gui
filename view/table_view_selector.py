@@ -10,10 +10,11 @@ class TableViewSelector(LabelFrame):
 
         self.columnconfigure(0, weight=1)
         self.columnconfigure(1, weight=1)
+        self.columnconfigure(2, weight=1)
+        self.columnconfigure(3, weight=1)
         self.rowconfigure(0, weight=1)
         self.rowconfigure(1, weight=1)
         self.rowconfigure(2, weight=1)
-        self.rowconfigure(3, weight=1)
         self.grid(column=0, row=1, sticky="NSEW")
         """
         self.label_arduino_text = Label(self, text="Arduino Status:")
@@ -39,13 +40,14 @@ class TableViewSelector(LabelFrame):
         self.active_buttons = [False, False, False, False, False, False, False, False, False, False, False, False]
 
         self.buttons = []
-
+        index = 0
         for row in range(3):
             for column in range(4):
-                index = row * 4 + column
                 button = Button(self, text=view_options[index], command=options_functions[index])
+                print(f"Placing button at {index} ({column} , {row})")
                 button.grid(column=column, row=row, sticky="NSEW")
                 self.buttons.append(button)
+                index += 1
 
         self.set_style()
 
