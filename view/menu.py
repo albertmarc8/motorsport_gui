@@ -11,7 +11,7 @@ class CustomMenu(Menu):
         self.add_command(label="Export", command=lambda: self.controller.export_data())
         self.add_command(label="Enable/Disable realtime", command=self.enable_live_data)
         self.add_command(label="Plot realtime", command=self.controller.plot_live_data())
-        self.add_command(label="Single/Multiple graphs", command=self.controller.change_view())
+        #self.add_command(label="Single/Multiple graphs", command=self.controller.change_view())
 
         # Cascade menu for different plots
         tables_menu = Menu(self, tearoff=False)
@@ -32,6 +32,17 @@ class CustomMenu(Menu):
         tables_menu.add_command(label="** View water temperature OUT")  # TODO add command=method to parameters
 
         self.add_command(label="Change color theme", command=self.change_color_theme)
+        self.add_command(label="Change view", command=self.change_view)
+
+        # Cascade menu for time format
+        time_format_menu = Menu(self, tearoff=False)
+        self.add_cascade(menu=time_format_menu, label="Time format")
+        time_format_menu.add_command(label="Milliseconds", command=self.set_time_format_miliseconds)
+        time_format_menu.add_command(label="Seconds", command=self.set_time_format_seconds)
+        time_format_menu.add_command(label="Minutes", command=self.set_time_format_minutes)
+        time_format_menu.add_command(label="hh:mm:ss", command=self.set_time_format_delta)
+
+
 
     def enable_live_data(self):
         self.controller.enable_live_data(self.root)
@@ -58,8 +69,25 @@ class CustomMenu(Menu):
         self.root.change_style()
         self.set_style()
 
+    def change_view(self):
+        self.root.change_view()
+
     def set_style(self):
         self.config(bg=self.root.style.get_secondary_color(),
                     fg=self.root.style.get_contrast_color(),
                     activebackground=self.root.style.get_primary_color(),
                     activeforeground=self.root.style.get_contrast_color())
+
+
+    def set_time_format_miliseconds(self):
+        self.root.figure.set_time_format_miliseconds
+
+    def set_time_format_seconds(self):
+        self.root.figure.set_time_format_seconds
+
+    def set_time_format_minutes(self):
+        self.root.figure.set_time_format_minutes
+
+    def set_time_format_delta(self):
+        self.root.figure.set_time_format_delta
+
